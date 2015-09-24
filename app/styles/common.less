@@ -17,6 +17,21 @@
  */
 
 /************************************************************************
+* FONTS.
+***********************************************************************/
+@font-face {
+    font-family: Octopus;
+    src: url(/font/Octopus_Wide_500.otf);
+}
+@font-face {
+    font-family: Dsignes Light;
+    src: url(/font/DsignesB.ttf);
+}
+@font-face {
+    font-family: Dsignes Bold;
+    src: url(/font/DsignesB.ttf);
+}
+/************************************************************************
 * Health status(service/host/host component health)icons class names
 ***********************************************************************/
 @health-status-red-icon:  icon-warning-sign;
@@ -27,11 +42,19 @@
 /************************************************************************
 * Health status(service/host/host component health)icon colors
 ***********************************************************************/
+/* ***** MODIFY ***** */
+/*
 @health-status-red: #ff0000;
 @health-status-green: #5AB400;
 @health-status-yellow: #FFD13D;
 @health-status-orange: #FF8E00;
 @maintenance-black: #000000;
+*/
+@health-status-red: #ff0000;
+@health-status-green: #55A08E;
+@health-status-yellow: #FFD13D;
+@health-status-orange: #FF8E00;
+@maintenance-black: #434142;
 /************************************************************************
 * Health status(service/host/host component health)icon colors ends
 ***********************************************************************/
@@ -142,8 +165,12 @@
   filter: progid:dximagetransform.microsoft.gradient(startColorstr= @start, endColorstr= @stop, GradientType=0); // for IE9-
 }
 
-
+/* ***** MODIFY ***** */
+/*
 @footer-height: 100px;
+*/
+@footer-height: 30px;
+/* ***** MODIFY ***** */
 
 @restart-indicator-color: #FDB82F;
 

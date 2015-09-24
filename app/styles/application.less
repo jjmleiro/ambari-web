@@ -46,6 +46,21 @@ ul.typeahead.dropdown-menu {
 }
 
 /* ***** MODIFY ***** */
+.title-text {
+  color: #434142;
+  font-family: Dsignes Bold;
+  font-weight: bold;
+}
+.about-links {
+  a {
+    color: #666484;
+    text-decoration: none;
+  }
+  a:hover {
+    color: #352B5B;
+    text-decoration: none;
+  }
+}
 ul.dropdown-menu {        
   a {
     cursor: pointer;
@@ -96,6 +111,7 @@ ul.dropdown-menu {
 
 /* ***** MODIFY ***** */
 footer {
+  /*
   position: relative;
   border-top: 1px solid #717175;
   padding: 30px 0;
@@ -103,17 +119,22 @@ footer {
   color: #717175;
   margin-top: -1 * @footer-height - 1;
   height: @footer-height - 60px;
+  */
+  position:relative;    
+  height: @footer-height; 
+  border-top: 1px solid #717175;
+  padding: 4px 0;
+  margin-top: -1 * @footer-height;
+  background-color: #C2C3C8;
+  color: #717175;
 }
 footer > div > a {
   color: #666484;
-  font-family: Dsignes Light; 
-  font-size: 24px;
-  font-weight: bold
+  font-family: Dsignes Bold; 
+  font-size: 1em;
 }
 footer > div > a:hover {
   color: #FFFFFF; 
-  font-size: 24px;
-  font-weight: bold;
   text-decoration: none
 }
 /* ***** MODIFY ***** */
@@ -129,8 +150,7 @@ footer > div > a:hover {
 #top-nav, .ru-badge {
 
   .navbar.navbar-static-top {
-    font-family: Dsignes light;
-    font-weight: bold;
+    font-family: Dsignes Bold;    
     .navbar-inner {
       background-image: -moz-linear-gradient(top, @top-nav-bg-color-from, @top-nav-bg-color-to);
       background-image: -webkit-gradient(linear, 0 0, 0 100%, from(@top-nav-bg-color-from), to(@top-nav-bg-color-to));
@@ -437,6 +457,7 @@ footer > div > a:hover {
   }
 }
 
+
 .nav.top-nav-menu,
 .nav-list.nav-services {
   .service-caption {
@@ -448,14 +469,7 @@ footer > div > a:hover {
       width: 80%;
     } 
   }
-  /*
-  a > div > span {
-    color: #666484;
-  }
-  a > div:hover > span {
-    color: #ffffff;
-  }
-  */
+/* ***** MODIFY ***** */
   .icon-caption {
     display: inline-block;
     width: 20%;
@@ -489,12 +503,15 @@ footer > div > a:hover {
   *width: 1.95%!important;
 }
 
+/* ***** MODIFY ***** */
 .page-bar {
-  border: 1px solid #E4E4E4;
-  color: #7B7B7B;
+  border: 1px solid #C2C3C8;
+  color: #9A999D;
   text-align: right;
   font-size: 12px;
   background-color: #FFFFFF;
+  font-family: Dsignes Light;
+  font-style: bold;
   label {
     font-size: 12px;
   }
@@ -540,6 +557,7 @@ footer > div > a:hover {
     }
   }
 }
+/* ***** MODIFY ***** */
 
 .hidden-scroll {
   overflow-y: hidden;
@@ -1184,7 +1202,11 @@ h1 {
   padding: 8px 0;
 }
 
+/* ***** MODIFY ***** */
 #summary-restart-bar {
+  font-family: Dsignes Light;
+  font-weight: bold;
+  font-size: 1.2em;
   margin-top: 20px;
   .alert{
     .icon-refresh{
@@ -1192,10 +1214,15 @@ h1 {
       color: #fdb82f;
     }
   }
-  .dropdown-menu > li > a:hover {
-    text-shadow: none;
+  .dropdown-toggle {
+    font-family: Dsignes Light;
+    font-weight: bold;
   }
+  .dropdown-menu > li > a:hover {
+    text-shadow: none;    
+  }  
 }
+/* ***** MODIFY ***** */
 
 #serviceConfig {
   margin-top: 20px;
@@ -1525,9 +1552,12 @@ a:focus {
   margin-bottom: 20px;
   background-color: #FFFFFF;
 
+  /* ***** MODIFY ***** */
   .box-header {
+    font-family: Dsignes Bold;
     border-bottom: 1px solid #D4D4D4;
   }
+  /* ***** MODIFY ***** */
   .box-header,
   .box-footer {
     padding: 4px 4px 4px 10px;
@@ -1648,14 +1678,19 @@ a:focus {
 }
 .host-component-popup-wrap {
   .task-top-wrap {
+    /* ***** MODIFY ***** */
     .operation-name-top {
       width: 33%;
       padding-left: 20px;
       float: left;
       text-align: left;
+      font-family: Dsignes Bold;
+      color: #434142;
     }
+    /* ***** MODIFY ***** */
   }
   #service-info{
+    /* ***** MODIFY ***** */
     .show-more {
       width: 98.8%;
       min-height: 20px;
@@ -1663,8 +1698,17 @@ a:focus {
       border-top: 1px solid #CCC;
       text-align: center;
       padding: 10px 10px 10px 0px;
-      font-size: 16px;
+      font-size: 16px;      
+      a {
+        color: #666484;
+        text-decoration: none;
+      }
+      a:hover {
+        color: #352B5B;
+        text-decoration: none;
+      }
     }
+    /* ***** MODIFY ***** */
   }
   #host-info, #service-info{
     overflow: auto;
@@ -1677,10 +1721,14 @@ a:focus {
       width:20%;
       float: left;
     }
+    /* ***** MODIFY ***** */
     .host-progress-num{
       float: left;
       padding-left: 8px;
+      font-family: Dsignes Light;
+      font-weight: bold;
     }
+    /* ***** MODIFY ***** */
     .host-name-icon-wrap{
       float: left;
       width: 50%;
@@ -1710,20 +1758,49 @@ a:focus {
           color: #333;
         }
       }
+      /* ***** MODIFY ***** */
       .operation-name-icon-wrap {
         float: left;
         width: 35%;
+        font-family: Dsignes Light;
+        a {
+          color: #666484;
+          text-decoration: none;
+        }
+        a:hover {
+          color: #352B5B;
+          text-decoration: none;
+        }
       }
       .start-time-text {
         margin-left: 5px;
         width: 20%;
         float: left;
+        font-family: Dsignes Light;
+        a {
+          color: #666484;
+          text-decoration: none;
+        }
+        a:hover {
+          color: #352B5B;
+          text-decoration: none;
+        }
       }
       .duration-text {
         margin-left: 5px;
         width: 10%;
         float: left;
+        font-family: Dsignes Light;
+        a {
+          color: #666484;
+          text-decoration: none;
+        }
+        a:hover {
+          color: #352B5B;
+          text-decoration: none;
+        }
       }
+      /* ***** MODIFY ***** */
       .time-summary {
         padding-left: 0px;
         color: #808080;
@@ -2510,6 +2587,12 @@ a:focus {
       position: absolute;
     }
   }
+  /* ***** MODIFY ***** */
+  .dropdown-toggle{      
+      font-family: Dsignes Bold;
+      color: #434142;
+  }
+  /* ***** MODIFY ***** */
   .dropdown-submenu {
     &> a:after {
       border-left-color: #333;
@@ -2674,18 +2757,20 @@ table.graphs {
 /*Dashboard Widgets/heatmaps Start*/
 #dashboard-widgets-container{
   > ul.nav.nav-tabs {
-    margin-bottom: 10px; 
-    font-family: Dsignes Light;
-    font-weight: bold;
+    margin-bottom: 10px;     
   }
   /* ***** MODIFY ***** */
   .nav-tabs > li > a {  
     color: #55A08E;    
+    font-family: Dsignes Bold;    
+    font-weight: bold;
   }  
   .nav-tabs > li.active > a,
   .nav-tabs > li.active > a:hover,
   .nav-tabs > li.active > a:focus{
     color: #666484;
+    font-family: Dsignes Bold;    
+    font-weight: bold;
   }
   /* ***** MODIFY ***** */
   #widgets-options-menu {
@@ -3174,10 +3259,13 @@ table.graphs {
         padding-left: 4px;
       }
     }
+    /* ***** MODIFY ***** */    
 	  thead {
       background: none repeat scroll 0 0 #F8F8F8;
+      font-family: Dsignes Bold;    
+      color: #434142;
     }
-
+    /* ***** MODIFY ***** */
     .set-rack-id {
       text-decoration: none;
     }
@@ -3880,8 +3968,7 @@ table.graphs {
 }
 .nav-tabs > li > a {  
   color: #55A08E;
-  font-family: Dsignes Light;
-  font-weight: bold;    
+  font-family: Dsignes Bold;    
 }  
 .nav-tabs > li.active > a,
 .nav-tabs > li.active > a:hover,
@@ -3891,9 +3978,8 @@ table.graphs {
 
 .background-text-big {
   color: #666484;
-  font-family: Dsignes Light;
+  font-family: Dsignes Bold;
   font-weight: bold;
-  font-size: 1.4em;
 }
 .background-text {
   color: #666484;
@@ -3951,6 +4037,8 @@ table.graphs {
   }
   .content {
     float: left;
+    font-family: Dsignes Bold;
+    color: #434142;
     .project {
       font-weight: bold;
       font-size: 2em;
@@ -4621,12 +4709,24 @@ ul.inline li {
 }
 
 /* ***** MODIFY ***** */
+.alerts-table {
+  font-family: Dsignes Light;
+  font-weight: bold;
+  thead{
+    font-family: Dsignes Bold;
+    color: #434142;
+  }
+  tbody{
+    color: #666484;
+  }
+}
+
 .stack-versions-table {
   font-family: Dsignes Light;
   font-weight: bold;
   thead{
+    font-family: Dsignes Bold;
     color: #434142;
-    font-size: 1.2em
   }
   tbody{
     color: #666484;
@@ -6265,7 +6365,11 @@ input[type="radio"].align-checkbox, input[type="checkbox"].align-checkbox {
   background-color: #FFFFFF;
 }
 
+/* ***** MODIFY ***** */
 .config-manage-nav {
+  font-family: Dsignes Light;
+  font-style: bold;
+  font-size: 1.2em;
   .config-groups-dropdown {
     display: inline-block;
     .btn.dropdown-toggle.first {
@@ -6284,3 +6388,4 @@ input[type="radio"].align-checkbox, input[type="checkbox"].align-checkbox {
     margin-bottom: 0;
   }
 }
+/* ***** MODIFY ***** */

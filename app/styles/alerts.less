@@ -459,7 +459,9 @@
   }
 }
 
+/* ***** MODIFY ***** */
 .service-block .summary-box-header {
+  font-family: Octopus;
   .alerts-crit-count, .alerts-warn-count, .no-alerts-label {
     padding: 4px 5px;
     margin: 4px;
@@ -476,6 +478,7 @@
     background: @health-status-green;
   }
 }
+/* ***** MODIFY ***** */
 
 #summary-alerts-popup {
   .alert-list-wrap {
@@ -574,15 +577,19 @@
     .name-top {
       width: 32%;
       padding-left: 10px;
-    }
+    } 
     .service-top {
       width: 31%;
       padding-left: 10px;
     }
+    /* ***** MODIFY ***** */
     .status-top,.name-top,.service-top,.last-triggered-top {
       float: left;
       text-align: left;
+      font-family: Octopus;
+      color: #434142;
     }
+    /* ***** MODIFY ***** */
   }
   #alert-info{
     overflow: auto;
@@ -596,6 +603,7 @@
     .alert-list-line-cursor{
       width: 100%;
       min-height: 20px;
+      font-family: Dsignes Light;      
       .status-icon {
         padding-right: 5px;
         min-width: 20px;
@@ -603,14 +611,32 @@
       .name-text {
         float: left;
         width: 33%;
+        a {
+          color: #666484;
+          text-decoration: none;
+        }
+        a:hover {
+          color: #352B5B;
+          text-decoration: none;
+        }
       }
+      /* ***** MODIFY ***** */
       .service-text {
         padding-left: 5px;
         width: 33%;
-        float: left;
+        float: left;        
         .na-text {
-          color: #808080;
+          color: #9A999D;
         }
+        a {
+          color: #666484;
+          text-decoration: none;
+        }
+        a:hover {
+          color: #352B5B;
+          text-decoration: none;
+        }
+      /* ***** MODIFY ***** */
       }
     }
     .alert-list-line-cursor:before,.alert-list-line-cursor:after {

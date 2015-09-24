@@ -212,7 +212,7 @@ App.MainAlertInstancesController = Em.Controller.extend({
         return Em.I18n.t('alerts.fastAccess.popup.header').format(this.get('alertsNumber'));
       }.property('alertsNumber'),
 
-      classNames: ['sixty-percent-width-modal', 'alerts-popup'],
+      classNames: ['sixty-percent-width-modal', 'alerts-popup', 'title-text'],
 
       secondary: Em.I18n.t('alerts.fastAccess.popup.body.showmore'),
 

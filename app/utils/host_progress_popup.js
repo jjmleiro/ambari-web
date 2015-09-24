@@ -673,7 +673,7 @@ App.HostPopup = Em.Object.create({
       /**
        * @type {String[]}
        */
-      classNames: ['sixty-percent-width-modal', 'host-progress-popup'],
+      classNames: ['sixty-percent-width-modal', 'host-progress-popup', 'title-text'],
 
       /**
        * for the checkbox: do not show this dialog again
