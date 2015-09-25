@@ -23,12 +23,21 @@ html {
 }
 /* ***** MODIFY ***** */
 html, body {
+  font-family: Dsignes Light;
+  font-style: bold;
   height: 100%;
   background: url('/img/keedio/fondo_identidad.png') no-repeat center center fixed; 
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
-  background-size: cover;   
+  background-size: cover;  
+
+  a {
+    color: @color-5285C;
+  }
+  a:hover {
+    color: @color-669C;    
+  } 
 }
 /* ***** MODIFY ***** */
 wbr {
@@ -46,18 +55,20 @@ ul.typeahead.dropdown-menu {
 }
 
 /* ***** MODIFY ***** */
+.progress-striped .bar {
+  background-color: #FF0000;
+}
 .title-text {
-  color: #434142;
-  font-family: Dsignes Bold;
-  font-weight: bold;
+  color: @color-426C;
+  font-family: Dsignes Bold;  
 }
 .about-links {
   a {
-    color: #666484;
+    color: @color-5285C;
     text-decoration: none;
   }
   a:hover {
-    color: #352B5B;
+    color: @color-669C;
     text-decoration: none;
   }
 }
@@ -66,37 +77,38 @@ ul.dropdown-menu {
     cursor: pointer;
     font-family: Dsignes Light;
     font-weight: bold;
-    color: #666484;
+    color: @color-5285C;
   }
   a:hover{
     color: #ffffff;
-    background-color: #717175;
-    background-image: linear-gradient(to bottom, #717175, #434142);        
+    background-color: @color-424C;
+    background-image: linear-gradient(to bottom, @color-424C, @color-426C);        
     background-repeat: repeat-x;
   }
 }
 .btn-success {
-    background: #87BAAC;
+    background: @color-563C;
     color: #ffffff;
 }
 .btn-success:hover, .btn-success:focus, .btn-success:active, .btn-success.active, .open > .dropdown-toggle.btn-success {
-    background: #55A08E;
+    background: @color-7473C;
 }
 .btn-success:active, .btn-success.active {
     background: #599386;
     box-shadow: none;
 }
 .btn-primary {
-    background: #666484;
+    background: @color-5285C;
     color: #ffffff;
 }
 .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open > .dropdown-toggle.btn-primary {
-    background: #352B5B;
+    background: @color-669C;
 }
 .btn-primary:active, .btn-primary.active {
     background: #312A4E;
     box-shadow: none;
 }
+
 /* ***** MODIFY ***** */
 
 #wrapper {
@@ -111,25 +123,16 @@ ul.dropdown-menu {
 
 /* ***** MODIFY ***** */
 footer {
-  /*
-  position: relative;
-  border-top: 1px solid #717175;
-  padding: 30px 0;
-  background-color: #C2C3C8;
-  color: #717175;
-  margin-top: -1 * @footer-height - 1;
-  height: @footer-height - 60px;
-  */
   position:relative;    
   height: @footer-height; 
-  border-top: 1px solid #717175;
+  border-top: 1px solid @color-424C;
   padding: 4px 0;
   margin-top: -1 * @footer-height;
-  background-color: #C2C3C8;
-  color: #717175;
+  background-color: @color-420C;
+  color: @color-424C;
 }
 footer > div > a {
-  color: #666484;
+  color: @color-5285C;
   font-family: Dsignes Bold; 
   font-size: 1em;
 }
@@ -232,6 +235,7 @@ footer > div > a:hover {
         animation-iteration-count: infinite;
       }
 
+      /* ***** MODIFY ***** */
       .upgrade-in-progress {
         text-shadow: none;
         background-color: #006DCC;
@@ -245,7 +249,7 @@ footer > div > a:hover {
         animation-duration: 1s;
         animation-iteration-count: infinite;
       }
-
+      /* ***** MODIFY ***** */
       .upgrade-holding {
         text-shadow: none;
         background-color: @health-status-orange;
@@ -394,19 +398,19 @@ footer > div > a:hover {
       }      
       /* ***** MODIFY ***** */
       .top-nav-dropdown-menu > li.active > a{
-        background-color: #C2C3C8;
+        background-color: @color-420C;
       }
       .top-nav-dropdown-menu > li > a:hover {
         color: #ffffff;
-        background-color: #717175;
-        background-image: linear-gradient(to bottom, #717175, #434142);        
+        background-color: @color-424C;
+        background-image: linear-gradient(to bottom, @color-424C, @color-426C);        
         background-repeat: repeat-x;
       }      
       .top-nav-dropdown-menu > li.disabled > a {
-        color: #9A999D;
+        color: @color-422C;
       }
       .top-nav-dropdown-menu > li.disabled > a:hover {
-        color: #9A999D;
+        color: @color-422C;
         background-color: @top-nav-menu-dropdown-bg-color;
         background-image: none;
       }
@@ -505,8 +509,8 @@ footer > div > a:hover {
 
 /* ***** MODIFY ***** */
 .page-bar {
-  border: 1px solid #C2C3C8;
-  color: #9A999D;
+  border: 1px solid @color-420C;
+  color: @color-422C;
   text-align: right;
   font-size: 12px;
   background-color: #FFFFFF;
@@ -616,10 +620,10 @@ h1 {
   h2 {
     margin-top: 0;
     margin-bottom: 20px;
-    color: #666484;
+    color: @color-5285C;
   }
   label {
-    color: #666484;
+    color: @color-5285C;
   }
   .btn {
     margin-top: 15px;
@@ -1677,20 +1681,18 @@ a:focus {
   }
 }
 .host-component-popup-wrap {
-  .task-top-wrap {
-    /* ***** MODIFY ***** */
+  /* ***** MODIFY ***** */
+  .task-top-wrap {    
     .operation-name-top {
       width: 33%;
       padding-left: 20px;
       float: left;
       text-align: left;
       font-family: Dsignes Bold;
-      color: #434142;
-    }
-    /* ***** MODIFY ***** */
+      color: @color-426C;
+    }    
   }
-  #service-info{
-    /* ***** MODIFY ***** */
+  #service-info{    
     .show-more {
       width: 98.8%;
       min-height: 20px;
@@ -1700,11 +1702,11 @@ a:focus {
       padding: 10px 10px 10px 0px;
       font-size: 16px;      
       a {
-        color: #666484;
+        color: @color-5285C;
         text-decoration: none;
       }
       a:hover {
-        color: #352B5B;
+        color: @color-669C;
         text-decoration: none;
       }
     }
@@ -1764,11 +1766,11 @@ a:focus {
         width: 35%;
         font-family: Dsignes Light;
         a {
-          color: #666484;
+          color: @color-5285C;
           text-decoration: none;
         }
         a:hover {
-          color: #352B5B;
+          color: @color-669C;
           text-decoration: none;
         }
       }
@@ -1778,11 +1780,11 @@ a:focus {
         float: left;
         font-family: Dsignes Light;
         a {
-          color: #666484;
+          color: @color-5285C;
           text-decoration: none;
         }
         a:hover {
-          color: #352B5B;
+          color: @color-669C;
           text-decoration: none;
         }
       }
@@ -1792,11 +1794,11 @@ a:focus {
         float: left;
         font-family: Dsignes Light;
         a {
-          color: #666484;
+          color: @color-5285C;
           text-decoration: none;
         }
         a:hover {
-          color: #352B5B;
+          color: @color-669C;
           text-decoration: none;
         }
       }
@@ -2548,7 +2550,7 @@ a:focus {
     }
     /* ***** MODIFY ***** */
     span {
-        color: #666484;
+        color: @color-5285C;
     }
     /* ***** MODIFY ***** */      
     .active {
@@ -2590,7 +2592,7 @@ a:focus {
   /* ***** MODIFY ***** */
   .dropdown-toggle{      
       font-family: Dsignes Bold;
-      color: #434142;
+      color: @color-426C;
   }
   /* ***** MODIFY ***** */
   .dropdown-submenu {
@@ -2681,7 +2683,7 @@ a:focus {
   /* ***** MODIFY ***** */
   font-family: Dsignes Light;
   font-weight: bold;
-  color: #666484;
+  color: @color-5285C;
   /* ***** MODIFY ***** */
   ul.dropdown-menu {
     li {
@@ -2692,12 +2694,12 @@ a:focus {
       cursor: pointer;
       font-family: Dsignes Light;
       font-weight: bold;
-      color: #666484;
+      color: @color-5285C;
     }
     a:hover{
       color: #ffffff;
-      background-color: #717175;
-      background-image: linear-gradient(to bottom, #717175, #434142);        
+      background-color: @color-424C;
+      background-image: linear-gradient(to bottom, @color-424C, @color-426C);        
       background-repeat: repeat-x;
     }    
     /* ***** MODIFY ***** */
@@ -2761,16 +2763,14 @@ table.graphs {
   }
   /* ***** MODIFY ***** */
   .nav-tabs > li > a {  
-    color: #55A08E;    
+    color: @color-7473C;    
     font-family: Dsignes Bold;    
-    font-weight: bold;
   }  
   .nav-tabs > li.active > a,
   .nav-tabs > li.active > a:hover,
   .nav-tabs > li.active > a:focus{
-    color: #666484;
+    color: @color-5285C;
     font-family: Dsignes Bold;    
-    font-weight: bold;
   }
   /* ***** MODIFY ***** */
   #widgets-options-menu {
@@ -2779,7 +2779,7 @@ table.graphs {
       &> span{
         font-family: Dsignes Light;
         font-weight: bold;
-        color: #666484;
+        color: @color-5285C;
       }
       /* ***** MODIFY ***** */
     }
@@ -2789,12 +2789,12 @@ table.graphs {
         cursor: pointer;
         font-family: Dsignes Light;
         font-weight: bold;
-        color: #666484;
+        color: @color-5285C;
       }
       a:hover{
         color: #ffffff;
-        background-color: #717175;
-        background-image: linear-gradient(to bottom, #717175, #434142);        
+        background-color: @color-424C;
+        background-image: linear-gradient(to bottom, @color-424C, @color-426C);        
         background-repeat: repeat-x;
       }
     }    
@@ -2826,7 +2826,7 @@ table.graphs {
           padding-left: 3px;
           font-family: Dsignes Light;
           font-weight: bold;
-          color: #666484;
+          color: @color-5285C;
         }
         /* ***** MODIFY ***** */
         input[type="checkbox"] {
@@ -3207,7 +3207,7 @@ table.graphs {
   .bulk-menu {
     font-family: Dsignes Light;
     font-weight: bold;
-    color: #666484;
+    color: @color-5285C;
 
     ul.dropdown-menu {        
       a {
@@ -3215,8 +3215,8 @@ table.graphs {
       }
       a:hover{
         color: #ffffff;
-        background-color: #717175;
-        background-image: linear-gradient(to bottom, #717175, #434142);        
+        background-color: @color-424C;
+        background-image: linear-gradient(to bottom, @color-424C, @color-426C);        
         background-repeat: repeat-x;
       }
     }
@@ -3244,7 +3244,7 @@ table.graphs {
     padding-right: 10px;
     font-family: Dsignes Light;
     font-weight: bold;
-    color: #666484;
+    color: @color-5285C;
   }
   /* ***** MODIFY ***** */
 
@@ -3262,8 +3262,24 @@ table.graphs {
     /* ***** MODIFY ***** */    
 	  thead {
       background: none repeat scroll 0 0 #F8F8F8;
-      font-family: Dsignes Bold;    
-      color: #434142;
+      th{
+        font-family: Dsignes Bold;    
+        color: @color-426C;
+      }
+    }
+    tbody {      
+      td{
+        font-family: Dsignes Light;    
+        color: @color-5285C;
+        a {
+          color: @color-5285C;
+          
+        }
+        a:hover {
+          color: @color-669C;
+          
+        }
+      }
     }
     /* ***** MODIFY ***** */
     .set-rack-id {
@@ -3345,12 +3361,12 @@ table.graphs {
     .health-status-bar {
       font-size: 0.9em;
       margin-left: 0;
-      color: #9A999D;
+      color: @color-422C;
       a {
         text-decoration: none;
         font-family: Dsignes Light;
         font-weight: bold;
-        color: #666484;
+        color: @color-5285C;
       }
       .category-item:hover {
         cursor: pointer;
@@ -3692,12 +3708,16 @@ table.graphs {
 #host-details {
 
   .status-info {
+    /* ***** MODIFY ***** */
     .host-title {
+      font-family: Dsignes Bold;
+      color: @color-426C;
       font-size: 18px;
       font-weight: 700;
       background-position: 0px center;
       padding-left: 17px;
     }
+    /* ***** MODIFY ***** */
     .host-maintenance-notice {
       background-color: #E4E4E4;
       border: 1px solid #D4D4D4;
@@ -3964,25 +3984,24 @@ table.graphs {
   padding-right: 10px;
   font-family: Dsignes Light;
   font-weight: bold;
-  color: #666484;
+  color: @color-5285C;
 }
 .nav-tabs > li > a {  
-  color: #55A08E;
+  color: @color-7473C;
   font-family: Dsignes Bold;    
 }  
 .nav-tabs > li.active > a,
 .nav-tabs > li.active > a:hover,
 .nav-tabs > li.active > a:focus{
-  color: #666484;
+  color: @color-5285C;
 }
 
 .background-text-big {
-  color: #666484;
+  color: @color-5285C;
   font-family: Dsignes Bold;
-  font-weight: bold;
 }
 .background-text {
-  color: #666484;
+  color: @color-5285C;
   font-family: Dsignes Light;
   font-weight: bold;
   font-size: 1.2em;
@@ -4038,9 +4057,8 @@ table.graphs {
   .content {
     float: left;
     font-family: Dsignes Bold;
-    color: #434142;
+    color: @color-426C;
     .project {
-      font-weight: bold;
       font-size: 2em;
     }
   }
@@ -4203,7 +4221,7 @@ ul.filter {
 
   /* ***** MODIFY ***** */
   .nav-list > li > a {  
-    color: #666484;
+    color: @color-5285C;
     font-family: Dsignes Light;
     font-weight: bold;    
   }  
@@ -4388,19 +4406,19 @@ ul.filter {
   .heatmap-select-metric-btn{
     font-family: Dsignes Light;
     font-weight: bold;
-    color: #666484;
+    color: @color-5285C;
   }
   ul.dropdown-menu {        
     a {
       cursor: pointer;
       font-family: Dsignes Light;
       font-weight: bold;
-      color: #666484;
+      color: @color-5285C;
     }
     a:hover{
       color: #ffffff;
-      background-color: #717175;
-      background-image: linear-gradient(to bottom, #717175, #434142);        
+      background-color: @color-424C;
+      background-image: linear-gradient(to bottom, @color-424C, @color-426C);        
       background-repeat: repeat-x;
     }
   }
@@ -4412,7 +4430,7 @@ ul.filter {
     /* ***** MODIFY ***** */
     font-family: Dsignes Light;
     font-weight: bold;
-    color: #666484;
+    color: @color-5285C;
     /* ***** MODIFY ***** */
   }
 
@@ -4479,12 +4497,12 @@ ul.filter {
     font-size: 12px;
     font-family: Dsignes Light;
     font-weight: bold;
-    color: #666484;
+    color: @color-5285C;
     .tile {
       width: 30px;
       height: 1em;
       padding: 4px;
-      border: 1px solid #C2C3C8;
+      border: 1px solid @color-420C;
       border-radius: 5px;
       margin-right: 10px;
     }
@@ -4714,10 +4732,10 @@ ul.inline li {
   font-weight: bold;
   thead{
     font-family: Dsignes Bold;
-    color: #434142;
+    color: @color-426C;
   }
   tbody{
-    color: #666484;
+    color: @color-5285C;
   }
 }
 
@@ -4726,10 +4744,10 @@ ul.inline li {
   font-weight: bold;
   thead{
     font-family: Dsignes Bold;
-    color: #434142;
+    color: @color-426C;
   }
   tbody{
-    color: #666484;
+    color: @color-5285C;
   }
 }
 /* ***** MODIFY ***** */
@@ -4739,7 +4757,7 @@ ul.inline li {
   font-family: Dsignes Light;
   font-weight: bold;
   thead{
-    color: #434142;
+    color: @color-426C;
   }
   /* ***** MODIFY ***** */
   th.first, td.first {
@@ -5201,11 +5219,9 @@ li.break {
 }
 
 /* ***** MODIFY ***** */
-.progress-striped .bar {
-  background-color: #55A08E;
-}
+
 .pantone5285C {
-  color: #666484;
+  color: @color-5285C;
   font-family: Dsignes Light;
   font-weight: bold;
 }
@@ -6388,4 +6404,16 @@ input[type="radio"].align-checkbox, input[type="checkbox"].align-checkbox {
     margin-bottom: 0;
   }
 }
+
+#host-details-back-btn {
+  font-family: Dsignes Light;
+  font-weight: bold;
+  color: @color-5285C;
+  text-decoration: none;
+  .hover {
+    color: @color-669C;
+    text-decoration: none;
+  }
+}
+
 /* ***** MODIFY ***** */
