@@ -16,6 +16,40 @@
  * limitations under the License.
  */
 
+/* ***** MODIFY ***** */
+
+/************************************************************************
+* FONTS.
+***********************************************************************/
+@font-face {
+    font-family: Octopus;
+    src: url(/font/Octopus_Wide_500.otf);
+}
+@font-face {
+    font-family: Dsignes Light;
+    src: url(/font/DsignesL.ttf);
+}
+@font-face {
+    font-family: Dsignes Bold;
+    src: url(/font/DsignesB.ttf);
+}
+
+@color-563C: #87BAAC;
+@color-7473C: #55A08E;
+@color-5285C: #666484;
+@color-669C: #352B5B;
+@color-420C: #C2C3C8;
+@color-422C: #9A999D;
+@color-424C: #717175;
+@color-426C: #434142;
+
+.pantone5285C {
+  color: @color-5285C;
+  font-family: Dsignes Light;
+  font-weight: bold;
+}
+
+/* ***** MODIFY ***** */
 
 @space-s: 5px;
 @space-m: 10px;
@@ -71,9 +105,80 @@ html {
   overflow-y: scroll;
 }
 
+/* ***** MODIFY ***** */
 html, body {
+  font-family: Dsignes Light;
+  font-style: bold;
   height: 100%;
+  background: url('/img/keedio/fondo_identidad.png') no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;  
+
+  a {
+    color: @color-5285C;
+  }
+  a:hover {
+    color: @color-669C;    
+  } 
 }
+
+.progress-striped .bar {
+  background-color: @color-7473C;
+}
+.title-text {
+  color: @color-426C;
+  font-family: Dsignes Bold;  
+}
+.about-links {
+  a {
+    color: @color-5285C;
+    text-decoration: none;
+  }
+  a:hover {
+    color: @color-669C;
+    text-decoration: none;
+  }
+}
+ul.dropdown-menu {        
+  a {
+    cursor: pointer;
+    font-family: Dsignes Light;
+    font-weight: bold;
+    color: @color-5285C;
+  }
+  a:hover{
+    color: #ffffff;
+    background-color: @color-424C;
+    background-image: linear-gradient(to bottom, @color-424C, @color-426C);        
+    background-repeat: repeat-x;
+  }
+}
+.btn-success {
+    background: @color-563C;
+    color: #ffffff;
+}
+.btn-success:hover, .btn-success:focus, .btn-success:active, .btn-success.active, .open > .dropdown-toggle.btn-success {
+    background: @color-7473C;
+}
+.btn-success:active, .btn-success.active {
+    background: #599386;
+    box-shadow: none;
+}
+.btn-primary {
+    background: @color-5285C;
+    color: #ffffff;
+}
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open > .dropdown-toggle.btn-primary {
+    background: @color-669C;
+}
+.btn-primary:active, .btn-primary.active {
+    background: #312A4E;
+    box-shadow: none;
+}
+
+/* ***** MODIFY ***** */
 
 wbr {
   display: inline-block;
@@ -93,7 +198,12 @@ ul.typeahead.dropdown-menu {
   min-height: 100%;
 }
 
+/* ***** MODIFY ***** */
+/*
 @footer-height: 100px;
+*/
+@footer-height: 30px;
+/* ***** MODIFY ***** */
 
 @restart-indicator-color: #FDB82F;
 
@@ -103,22 +213,42 @@ ul.typeahead.dropdown-menu {
   min-width: 980px;
 }
 
+/* ***** MODIFY ***** */
 footer {
-  position: relative;
-  border-top: 1px solid #e5e5e5;
-  padding: 30px 0;
-  background-color: #fff;
-  color: #666666;
-  margin-top: -1 * @footer-height - 1;
-  height: @footer-height - 60px;
+  position:relative;    
+  height: @footer-height; 
+  border-top: 1px solid @color-424C;
+  padding: 4px 0;
+  margin-top: -1 * @footer-height;
+  background-color: @color-420C;
+  color: @color-424C;
 }
+footer > div > a {
+  color: @color-5285C;
+  font-family: Dsignes Bold; 
+  font-size: 1em;
+}
+footer > div > a:hover {
+  color: #FFFFFF; 
+  text-decoration: none
+}
+/* ***** MODIFY ***** */
 
 #content {
   padding: 15px 0;
 }
 
+/* ***** MODIFY ***** */
+/*
 @top-nav-bg-color-from: #555555;
 @top-nav-bg-color-to: #333333;
+*/
+@top-nav-bg-color-from: @color-426C;
+@top-nav-bg-color-to: @color-426C;
+/* ***** MODIFY ***** */
+
+/* ***** MODIFY ***** */
+/*
 @top-nav-brand-color: #ffffff;
 @top-nav-ops-count-color: #ffffff;
 @top-nav-ops-count-bg-color: #c3c3c3;
@@ -130,11 +260,26 @@ footer {
 @top-nav-menu-dropdown-bg-color: #ffffff;
 @top-nav-menu-dropdown-text-color: #333333;
 @default-font-size: 14px;
+*/
+@top-nav-brand-color: #ffffff;
+@top-nav-ops-count-color: #ffffff;
+@top-nav-ops-count-bg-color: #C2C3C8;
+@top-nav-menu-active-text-color: #666484;
+@top-nav-menu-active-bg-color: #ffffff;
+@top-nav-menu-text-color: #C2C3C8;
+@top-nav-menu-text-hover-color: #ffffff;
+@top-nav-menu-dropdown-border-color: #C2C3C8;
+@top-nav-menu-dropdown-bg-color: #ffffff;
+@top-nav-menu-dropdown-text-color: #666484;
+@default-font-size: 14px;
+/* ***** MODIFY ***** */
 
 #top-nav {
 
   .navbar.navbar-static-top {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    /* ***** MODIFY ***** */    
+    font-family: Dsignes Bold;    
+    /* ***** MODIFY ***** */
     .navbar-inner {
       background-image: -moz-linear-gradient(top, @top-nav-bg-color-from, @top-nav-bg-color-to);
       background-image: -webkit-gradient(linear, 0 0, 0 100%, from(@top-nav-bg-color-from), to(@top-nav-bg-color-to));
@@ -299,23 +444,25 @@ footer {
         color: @top-nav-menu-dropdown-text-color;
         white-space: nowrap;
       }
+      /* ***** MODIFY ***** */
       .top-nav-dropdown-menu > li.active > a{
-        background-color: #e5e5e5;
+        background-color: @color-420C;
       }
       .top-nav-dropdown-menu > li > a:hover {
         color: #ffffff;
-        background-color: #666666;
-        background-image: linear-gradient(to bottom, #666666, #555555);
+        background-color: @color-424C;
+        background-image: linear-gradient(to bottom, @color-424C, @color-426C);        
         background-repeat: repeat-x;
-      }
+      }      
       .top-nav-dropdown-menu > li.disabled > a {
-        color: #a9a9a9;
+        color: @color-422C;
       }
       .top-nav-dropdown-menu > li.disabled > a:hover {
-        color: #a9a9a9;
+        color: @color-422C;
         background-color: @top-nav-menu-dropdown-bg-color;
         background-image: none;
       }
+      /* ***** MODIFY ***** */
     }
   }
 
@@ -370,11 +517,15 @@ footer {
   *width: 1.95%!important;
 }
 
+/* ***** MODIFY ***** */
 .page-bar {
-  border: 1px solid #E4E4E4;
-  color: #7B7B7B;
+  border: 1px solid @color-420C;
+  color: @color-422C;
   text-align: right;
   font-size: 12px;
+  background-color: #FFFFFF;
+  font-family: Dsignes Light;
+  font-style: bold;
   label {
     font-size: 12px;
   }
@@ -420,6 +571,7 @@ footer {
     }
   }
 }
+/* ***** MODIFY ***** */
 
 .hidden-scroll {
   overflow-y: hidden;
@@ -476,15 +628,21 @@ h1 {
   float: none;
 }
 
+/* ***** MODIFY ***** */
 .login {
   h2 {
     margin-top: 0;
     margin-bottom: 20px;
+    color: @color-5285C;
+  }
+  label {
+    color: @color-5285C;
   }
   .btn {
     margin-top: 15px;
   }
 }
+/* ***** MODIFY ***** */
 
 .hide {
   visibility: hidden;
@@ -1066,7 +1224,11 @@ h1 {
   padding: 8px 0;
 }
 
+/* ***** MODIFY ***** */
 #summary-restart-bar {
+  font-family: Dsignes Light;
+  font-weight: bold;
+  font-size: 1.2em;
   margin-top: 20px;
   .alert{
     .icon-refresh{
@@ -1074,10 +1236,15 @@ h1 {
       color: #fdb82f;
     }
   }
-  .dropdown-menu > li > a:hover {
-    text-shadow: none;
+  .dropdown-toggle {
+    font-family: Dsignes Light;
+    font-weight: bold;
   }
+  .dropdown-menu > li > a:hover {
+    text-shadow: none;    
+  }  
 }
+/* ***** MODIFY ***** */
 
 #serviceConfig {
   margin-top: 20px;
@@ -1358,9 +1525,12 @@ a:focus {
   border: 1px solid #D4D4D4;
   margin-bottom: 20px;
 
+  /* ***** MODIFY ***** */
   .box-header {
+    font-family: Dsignes Bold;
     border-bottom: 1px solid #D4D4D4;
   }
+  /* ***** MODIFY ***** */
   .box-header,
   .box-footer {
     padding: 4px 4px 4px 10px;
@@ -1963,15 +2133,18 @@ width:100%;
   }
 }
 .host-component-popup-wrap {
-  .task-top-wrap {
+  /* ***** MODIFY ***** */
+  .task-top-wrap {    
     .operation-name-top {
       width: 33%;
       padding-left: 20px;
       float: left;
       text-align: left;
-    }
+      font-family: Dsignes Bold;
+      color: @color-426C;
+    }    
   }
-  #service-info{
+  #service-info{    
     .show-more {
       width: 98.8%;
       min-height: 20px;
@@ -1979,9 +2152,18 @@ width:100%;
       border-top: 1px solid #CCC;
       text-align: center;
       padding: 10px 10px 10px 0px;
-      font-size: 16px;
-    }
+      font-size: 16px;      
+      a {
+        color: @color-5285C;
+        text-decoration: none;
+      }
+      a:hover {
+        color: @color-669C;
+        text-decoration: none;
+      }
+    }    
   }
+  /* ***** MODIFY ***** */
   #host-info, #service-info{
     overflow: auto;
     max-height: 340px;
@@ -1993,10 +2175,14 @@ width:100%;
       width:20%;
       float: left;
     }
+    /* ***** MODIFY ***** */
     .host-progress-num{
       float: left;
       padding-left: 8px;
+      font-family: Dsignes Light;
+      font-weight: bold;
     }
+    /* ***** MODIFY ***** */
     .host-name-icon-wrap{
       float: left;
       width: 50%;
@@ -2025,20 +2211,49 @@ width:100%;
           color: #333;
         }
       }
+      /* ***** MODIFY ***** */
       .operation-name-icon-wrap {
         float: left;
         width: 35%;
+        font-family: Dsignes Light;
+        a {
+          color: @color-5285C;
+          text-decoration: none;
+        }
+        a:hover {
+          color: @color-669C;
+          text-decoration: none;
+        }
       }
       .start-time-text {
         margin-left: 5px;
         width: 20%;
         float: left;
+        font-family: Dsignes Light;
+        a {
+          color: @color-5285C;
+          text-decoration: none;
+        }
+        a:hover {
+          color: @color-669C;
+          text-decoration: none;
+        }
       }
       .duration-text {
         margin-left: 5px;
         width: 10%;
         float: left;
+        font-family: Dsignes Light;
+        a {
+          color: @color-5285C;
+          text-decoration: none;
+        }
+        a:hover {
+          color: @color-669C;
+          text-decoration: none;
+        }
       }
+      /* ***** MODIFY ***** */
       .time-summary {
         padding-left: 0px;
         color: #808080;
@@ -2772,12 +2987,19 @@ width:100%;
       color: #555;
       padding-left: 5px;
     }
+    /* ***** MODIFY ***** */
+    span {
+        color: @color-5285C;
+    }
     .active {
+      span {
+        color: #ffffff;
+      } 
       .icon-laptop {
         color: #f0f0f0;
       }
     }
-
+    /* ***** MODIFY ***** */
   }
 
   .add-service-button {
@@ -2807,6 +3029,12 @@ width:100%;
       position: absolute;
     }
   }
+  /* ***** MODIFY ***** */
+  .dropdown-toggle{      
+      font-family: Dsignes Bold;
+      color: @color-426C;
+  }
+  /* ***** MODIFY ***** */
   .dropdown-submenu {
     &> a:after {
       border-left-color: #333;
@@ -2886,13 +3114,29 @@ width:100%;
   margin-top: -55px;
   margin-left: 10px;
   min-height: 30px;
+  /* ***** MODIFY ***** */
+  font-family: Dsignes Light;
+  font-weight: bold;
+  color: @color-5285C;
+  /* ***** MODIFY ***** */
   ul.dropdown-menu {
     li {
       text-align: left;
     }
+    /* ***** MODIFY ***** */
     a {
       cursor: pointer;
+      font-family: Dsignes Light;
+      font-weight: bold;
+      color: @color-5285C;
     }
+    a:hover{
+      color: #ffffff;
+      background-color: @color-424C;
+      background-image: linear-gradient(to bottom, @color-424C, @color-426C);        
+      background-repeat: repeat-x;
+    }    
+    /* ***** MODIFY ***** */
     .icon-play.enabled {
       color: @green;
     }
@@ -2951,14 +3195,46 @@ table.graphs {
   > ul.nav.nav-tabs {
     margin-bottom: 10px;
   }
-  > ul.nav.nav-tabs > li.active > a, .nav-pills > li.active > a {
-    padding-right: 18px;
+  /* ***** MODIFY ***** */
+  .nav-tabs > li > a {  
+    color: @color-7473C;    
+    font-family: Dsignes Bold;    
+  }  
+  .nav-tabs > li.active > a,
+  .nav-tabs > li.active > a:hover,
+  .nav-tabs > li.active > a:focus{
+    color: @color-5285C;
+    font-family: Dsignes Bold;    
   }
+  /* ***** MODIFY ***** */
   #widgets-options-menu {
     position: relative;
     top: -39px;
     left: 62px;
     width: 15px;
+    /* ***** MODIFY ***** */
+    .dropdown-toggle {      
+      &> span{
+        font-family: Dsignes Light;
+        font-weight: bold;
+        color: @color-5285C;
+      }
+    }
+    ul.dropdown-menu {        
+      a {
+        cursor: pointer;
+        font-family: Dsignes Light;
+        font-weight: bold;
+        color: @color-5285C;
+      }
+      a:hover{
+        color: #ffffff;
+        background-color: @color-424C;
+        background-image: linear-gradient(to bottom, @color-424C, @color-426C);        
+        background-repeat: repeat-x;
+      }
+    }  
+    /* ***** MODIFY ***** */
     .dropdown-submenu {
       &> a:after {
         border-left-color: #333;
@@ -2979,9 +3255,14 @@ table.graphs {
         ul{
           margin-left: 0px;
         }
+        /* ***** MODIFY ***** */
         label.checkbox {
           padding-left: 3px;
+          font-family: Dsignes Light;
+          font-weight: bold;
+          color: @color-5285C;
         }
+        /* ***** MODIFY ***** */
         input[type="checkbox"] {
           margin: 4px 4px 2px 2px;
         }
@@ -3356,7 +3637,10 @@ table.graphs {
 #hosts {
 
   .bulk-menu {
-
+    /* ***** MODIFY ***** */
+    font-family: Dsignes Light;
+    font-weight: bold;
+    color: @color-5285C;    
     .dropdown-submenu {
       &> a:after {
         border-left-color: #333;
@@ -3365,7 +3649,18 @@ table.graphs {
         border-left-color: #ccc;
       }
     }
-
+    ul.dropdown-menu {        
+      a {
+        cursor: pointer;    
+      }
+      a:hover{
+        color: #ffffff;
+        background-color: @color-424C;
+        background-image: linear-gradient(to bottom, @color-424C, @color-426C);        
+        background-repeat: repeat-x;
+      }
+    }
+    /* ***** MODIFY ***** */
     a {
       &.disabled {
         color: gray;
@@ -3373,11 +3668,36 @@ table.graphs {
     }
   }
 
+  /* ***** MODIFY ***** */
   .filters-label {
     display: block;
     float: left;
     padding-right: 10px;
+    font-family: Dsignes Light;
+    font-weight: bold;
+    color: @color-5285C;
   }
+  .nav-tabs > li > a {  
+    color: @color-7473C;
+    font-family: Dsignes Bold;    
+  }  
+  .nav-tabs > li.active > a,
+  .nav-tabs > li.active > a:hover,
+  .nav-tabs > li.active > a:focus{
+    color: @color-5285C;
+  }
+
+  .background-text-big {
+    color: @color-5285C;
+    font-family: Dsignes Bold;
+  }
+  .background-text {
+    color: @color-5285C;
+    font-family: Dsignes Light;
+    font-weight: bold;
+    font-size: 1.2em;
+  }
+  /* ***** MODIFY ***** */
 
   #hosts-table {
     margin-top: 10px;
@@ -3390,9 +3710,29 @@ table.graphs {
         padding-left: 4px;
       }
     }
+  /* ***** MODIFY ***** */    
 	thead {
       background: none repeat scroll 0 0 #F8F8F8;
+      th{
+        font-family: Dsignes Bold;    
+        color: @color-426C;
+      }
     }
+  tbody {      
+    td{
+      font-family: Dsignes Light;    
+      color: @color-5285C;
+      a {
+        color: @color-5285C;
+        
+      }
+      a:hover {
+        color: @color-669C;
+        
+      }
+    }
+  }
+  /* ***** MODIFY ***** */
   }
 
   .hosts-overlay {
@@ -3474,12 +3814,16 @@ table.graphs {
     .hosts-actions {
       margin-right: 10px;
     }
+    /* ***** MODIFY ***** */
     .health-status-bar {
       font-size: 0.9em;
       margin-left: 0;
-      color: #b4b4b4;
+      color: @color-422C;
       a {
         text-decoration: none;
+        font-family: Dsignes Light;
+        font-weight: bold;
+        color: @color-5285C;
       }
       .category-item:hover {
         cursor: pointer;
@@ -3503,6 +3847,7 @@ table.graphs {
         }
       }
     }
+    /* ***** MODIFY ***** */
   }
   .progress {
     margin-bottom: 0;
@@ -3786,12 +4131,16 @@ table.graphs {
 #host-details {
 
   .status-info {
+    /* ***** MODIFY ***** */
     .host-title {
+      font-family: Dsignes Bold;
+      color: @color-426C;
       font-size: 18px;
       font-weight: 700;
       background-position: 0px center;
       padding-left: 17px;
     }
+    /* ***** MODIFY ***** */
     .host-maintenance-notice {
       background-color: #E4E4E4;
       border: 1px solid #D4D4D4;
@@ -4221,6 +4570,18 @@ ul.filter {
 }
 
 #main-admin-menu {
+  /* ***** MODIFY ***** */
+  .nav-list > li > a {  
+    color: @color-5285C;
+    font-family: Dsignes Light;
+    font-weight: bold;    
+  }  
+  .nav-list > li.active > a,
+  .nav-list > li.active > a:hover,
+  .nav-list > li.active > a:focus{
+    color: #FFFFFF;    
+  }
+  /* ***** MODIFY ***** */
   padding: 8px 0;
   .nav-list {
     .tab-marker-position {
@@ -4391,9 +4752,39 @@ ul.filter {
 }
 
 /*Start Heatmap*/
+
+/* ***** MODIFY ***** */
+#heatmap-select-metric-div {
+  .heatmap-select-metric-btn{
+    font-family: Dsignes Light;
+    font-weight: bold;
+    color: @color-5285C;
+  }
+  ul.dropdown-menu {        
+    a {
+      cursor: pointer;
+      font-family: Dsignes Light;
+      font-weight: bold;
+      color: @color-5285C;
+    }
+    a:hover{
+      color: #ffffff;
+      background-color: @color-424C;
+      background-image: linear-gradient(to bottom, @color-424C, @color-426C);        
+      background-repeat: repeat-x;
+    }
+  }
+}
+/* ***** MODIFY ***** */
+
 .heatmap {
   #heatmap-metric-title {
     margin-left: 23px;
+    /* ***** MODIFY ***** */
+    font-family: Dsignes Light;
+    font-weight: bold;
+    color: @color-5285C;
+    /* ***** MODIFY ***** */
   }
   .rack.rack-5-2 {
     .hosts {
@@ -4444,19 +4835,24 @@ ul.filter {
   .row-fluid [class*="span"] {
     margin-left: 0px;
   }
+  /* ***** MODIFY ***** */
   .legend {
     margin-top: 20px;
     margin-bottom: 20px;
     font-size: 12px;
+    font-family: Dsignes Light;
+    font-weight: bold;
+    color: @color-5285C;
     .tile {
       width: 30px;
       height: 1em;
       padding: 4px;
-      border: 1px solid #D4D4D4;
+      border: 1px solid @color-420C;
       border-radius: 5px;
       margin-right: 10px;
     }
   }
+  /* ***** MODIFY ***** */
 
   h4 {
     color: #777777;
@@ -5269,6 +5665,13 @@ ul.inline li {
 }
 
 .advanced-header-table {
+  /* ***** MODIFY ***** */
+  font-family: Dsignes Light;
+  font-weight: bold;
+  thead{
+    color: @color-426C;
+  }
+  /* ***** MODIFY ***** */
   th.first, td.first {
     border-left-width: 1px;
   }
