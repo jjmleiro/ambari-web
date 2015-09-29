@@ -33,12 +33,7 @@ App.MainServiceMenuView = Em.CollectionView.extend({
   didInsertElement:function () {
     App.router.location.addObserver('lastSetURL', this, 'renderOnRoute');
     this.renderOnRoute();
-    App.tooltip(this.$(".restart-required-service"), {html:true, placement:"right"});
-  },
-
-  willDestroyElement: function() {
-    App.router.location.removeObserver('lastSetURL', this, 'renderOnRoute');
-    this.$(".restart-required-service").tooltip('destroy');
+    App.tooltip($(".restart-required-service"), {html:true, placement:"right"});
   },
 
   activeServiceId:null,
@@ -55,6 +50,7 @@ App.MainServiceMenuView = Em.CollectionView.extend({
     var sub_url = reg.exec(last_url);
     var service_id = (null != sub_url) ? sub_url[1] : 1;
     this.set('activeServiceId', service_id);
+
   },
 
   tagName:'ul',
@@ -75,12 +71,8 @@ App.MainServiceMenuView = Em.CollectionView.extend({
     }.property('parentView.activeServiceId'),
 
     alertsCount: function () {
-      return this.get('content.alertsCount');
-    }.property('content.alertsCount'),
-
-    hasCriticalAlerts: function () {
-      return this.get('content.hasCriticalAlerts');
-    }.property('content.hasCriticalAlerts'),
+      return this.get('content.criticalAlertsCount');
+    }.property('content.criticalAlertsCount'),
 
     isConfigurable: function () {
       return !App.get('services.noConfigTypes').contains(this.get('content.serviceName'));
@@ -141,12 +133,7 @@ App.TopNavServiceMenuView = Em.CollectionView.extend({
   didInsertElement:function () {
     App.router.location.addObserver('lastSetURL', this, 'renderOnRoute');
     this.renderOnRoute();
-    App.tooltip(this.$(".restart-required-service"), {html:true, placement:"right"});
-  },
-
-  willDestroyElement: function() {
-    App.router.location.removeObserver('lastSetURL', this, 'renderOnRoute');
-    this.$(".restart-required-service").tooltip('destroy');
+    App.tooltip($(".restart-required-service"), {html:true, placement:"right"});
   },
 
   activeServiceId:null,
@@ -182,12 +169,8 @@ App.TopNavServiceMenuView = Em.CollectionView.extend({
     }.property('parentView.activeServiceId'),
 
     alertsCount: function () {
-      return this.get('content.alertsCount');
-    }.property('content.alertsCount'),
-
-    hasCriticalAlerts: function () {
-      return this.get('content.hasCriticalAlerts');
-    }.property('content.hasCriticalAlerts'),
+      return this.get('content.criticalAlertsCount');
+    }.property('content.criticalAlertsCount'),
 
     isConfigurable: function () {
       return !App.get('services.noConfigTypes').contains(this.get('content.serviceName'));

@@ -35,7 +35,6 @@ describe('App.RollingRestartView', function () {
         }
       },
       {
-        hostComponentName: 'NOT_DATANODE',
         restartHostComponents: new Array(10),
         result: {
           batchSize: 1,
@@ -43,7 +42,6 @@ describe('App.RollingRestartView', function () {
         }
       },
       {
-        hostComponentName: 'NOT_DATANODE',
         restartHostComponents: new Array(11),
         result: {
           batchSize: 2,
@@ -51,19 +49,10 @@ describe('App.RollingRestartView', function () {
         }
       },
       {
-        hostComponentName: 'NOT_DATANODE',
         restartHostComponents: new Array(20),
         result: {
           batchSize: 2,
           tolerateSize: 2
-        }
-      },
-      {
-        hostComponentName: 'DATANODE',
-        restartHostComponents: new Array(20),
-        result: {
-          batchSize: 1,
-          tolerateSize: 1
         }
       }
     ];
@@ -73,7 +62,6 @@ describe('App.RollingRestartView', function () {
         view.set('batchSize', -1);
         view.set('interBatchWaitTimeSeconds', -1);
         view.set('tolerateSize', -1);
-        view.set('hostComponentName', test.hostComponentName);
         view.set('restartHostComponents', test.restartHostComponents);
         view.initialize();
         expect(view.get('batchSize')).to.equal(test.result.batchSize);

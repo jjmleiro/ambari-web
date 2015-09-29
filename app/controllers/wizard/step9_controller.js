@@ -18,7 +18,7 @@
 var App = require('app');
 var stringUtils = require('utils/string_utils');
 
-App.WizardStep9Controller = Em.Controller.extend(App.ReloadPopupMixin, {
+App.WizardStep9Controller = Em.Controller.extend({
 
   name: 'wizardStep9Controller',
 
@@ -45,13 +45,13 @@ App.WizardStep9Controller = Em.Controller.extend(App.ReloadPopupMixin, {
    */
   progress: '0',
 
-  /**
+  /*
    * Json file for the mock data to be used in mock mode
    * @type {string}
    */
   mockDataPrefix: '/data/wizard/deploy/5_hosts',
 
-  /**
+  /*
    * Current Request data polled from the API: api/v1/clusters/{clusterName}/requests/{RequestId}?fields=tasks/Tasks/command,
    * tasks/Tasks/exit_code,tasks/Tasks/start_time,tasks/Tasks/end_time,tasks/Tasks/host_name,tasks/Tasks/id,tasks/Tasks/role,
    * tasks/Tasks/status&minimal_response=true
@@ -59,7 +59,7 @@ App.WizardStep9Controller = Em.Controller.extend(App.ReloadPopupMixin, {
    */
   polledData: [],
 
-  /**
+  /*
    * This flag is only used in UI mock mode as a counter for number of polls.
    * @type {number}
    */
@@ -89,15 +89,13 @@ App.WizardStep9Controller = Em.Controller.extend(App.ReloadPopupMixin, {
    */
   startCallFailed: false,
 
-  /**
+  /*
    * Status of the page. Possible values: <info, warning, failed and success>.
    * This property is used in the step-9 view for displaying the appropriate color of the overall progress bar and
    * the appropriate result message at the bottom of the page
    * @type {string}
    */
   status: 'info',
-
-  skipServiceChecks: false,
 
   /**
    * This computed property is used to determine if the Next button and back button on the page should be disabled. The property is
@@ -130,7 +128,7 @@ App.WizardStep9Controller = Em.Controller.extend(App.ReloadPopupMixin, {
     }
   }.observes('content.cluster.status', 'content.controllerName'),
 
-  /**
+  /*
    * Computed property to determine if the Retry button should be made visible on the page.
    * @type {bool}
    */
@@ -198,9 +196,7 @@ App.WizardStep9Controller = Em.Controller.extend(App.ReloadPopupMixin, {
         if (self.get('currentOpenTaskId')) {
           self.loadCurrentTaskLog();
         }
-        if (App.router.loggedIn) {
-          self.doPolling();
-        }
+        self.doPolling();
       }, this.get('POLL_INTERVAL'));
     }
   },
@@ -471,8 +467,7 @@ App.WizardStep9Controller = Em.Controller.extend(App.ReloadPopupMixin, {
       case 'addHostController':
         name = 'common.host_components.update';
         var hostnames = [];
-        var hosts = this.get('wizardController').getDBProperty('hosts');
-        for (var hostname in hosts) {
+        for (var hostname in this.get('wizardController').getDBProperty('hosts')) {
           if(this.get('hosts').findProperty('name', hostname)){
             hostnames.push(hostname);
           }
@@ -486,13 +481,13 @@ App.WizardStep9Controller = Em.Controller.extend(App.ReloadPopupMixin, {
       case 'addServiceController':
         var servicesList = this.get('content.services').filterProperty('isSelected').filterProperty('isInstalled', false).mapProperty('serviceName');
         if (servicesList.contains('OOZIE')) {
-          servicesList = servicesList.concat(['HDFS', 'YARN', 'MAPREDUCE2']);
+          servicesList = servicesList.concat(['HDFS', 'YARN', 'MAPREDUCE', 'MAPREDUCE2']);
         }
         name = 'common.services.update';
         data = {
           "context": Em.I18n.t("requestInfo.startAddedServices"),
           "ServiceInfo": { "state": "STARTED" },
-          "urlParams": "ServiceInfo/state=INSTALLED&ServiceInfo/service_name.in(" + servicesList.join(",") + ")&params/run_smoke_test=true&params/reconfigure_client=false"
+          "urlParams": "ServiceInfo/state=INSTALLED&ServiceInfo/service_name.in(" + servicesList.join(",") + ")&params/reconfigure_client=false"
         };
         break;
       default:
@@ -500,7 +495,7 @@ App.WizardStep9Controller = Em.Controller.extend(App.ReloadPopupMixin, {
         data = {
           "context": Em.I18n.t("requestInfo.startServices"),
           "ServiceInfo": { "state": "STARTED" },
-          "urlParams": "ServiceInfo/state=INSTALLED&params/run_smoke_test=" + !this.get('skipServiceChecks') + "&params/reconfigure_client=false"
+          "urlParams": "ServiceInfo/state=INSTALLED&params/run_smoke_test=true&params/reconfigure_client=false"
         };
     }
 
@@ -614,9 +609,7 @@ App.WizardStep9Controller = Em.Controller.extend(App.ReloadPopupMixin, {
    * @method onSuccessPerHost
    */
   onSuccessPerHost: function (actions, contentHost) {
-    var status = this.get('content.cluster.status');
-    if (actions.everyProperty('Tasks.status', 'COMPLETED') && 
-        (status === 'INSTALLED' || status === 'STARTED') ) {
+    if (actions.everyProperty('Tasks.status', 'COMPLETED') && this.get('content.cluster.status') === 'INSTALLED') {
       contentHost.set('status', 'success');
     }
   },
@@ -706,7 +699,7 @@ App.WizardStep9Controller = Em.Controller.extend(App.ReloadPopupMixin, {
         progress = actionsPerHost ? (Math.ceil(((queuedActions * 0.09) + (inProgressActions * 0.35) + completedActions ) / actionsPerHost * 33)) : 33;
         break;
       case 'INSTALLED':
-        progress = actionsPerHost ? (33 + Math.floor(((queuedActions * 0.09) + (inProgressActions * 0.35) + completedActions ) / actionsPerHost * 67)) : 100;
+        progress = actionsPerHost ? (34 + Math.ceil(((queuedActions * 0.09) + (inProgressActions * 0.35) + completedActions ) / actionsPerHost * 66)) : 100;
         break;
       default:
         progress = 100;
@@ -772,9 +765,7 @@ App.WizardStep9Controller = Em.Controller.extend(App.ReloadPopupMixin, {
    */
   setFinishState: function (polledData) {
     if (this.get('content.cluster.status') === 'INSTALLED') {
-      Em.run.next(this, function(){
-        this.changeParseHostInfo(this.isServicesStarted(polledData));
-      });
+      this.changeParseHostInfo(this.isServicesStarted(polledData));
       return;
     } else if (this.get('content.cluster.status') === 'PENDING') {
       this.setIsServicesInstalled(polledData);
@@ -789,7 +780,7 @@ App.WizardStep9Controller = Em.Controller.extend(App.ReloadPopupMixin, {
   },
 
   /**
-   * @param polledData JSON data retrieved from API
+   * @param polledData Josn data retrieved from API
    * @returns {bool} Has "Start All Services" request completed successfully
    * @method isServicesStarted
    */
@@ -834,10 +825,7 @@ App.WizardStep9Controller = Em.Controller.extend(App.ReloadPopupMixin, {
       if (this.get('status') === 'failed') {
         clusterStatus.status = 'INSTALL FAILED';
         this.saveClusterStatus(clusterStatus);
-        this.setProperties({
-          progress: '100',
-          isPolling: false
-        });
+        this.set('progress', '100');
         this.get('hosts').forEach(function (host) {
           host.set('progress', '100');
         });
@@ -894,7 +882,7 @@ App.WizardStep9Controller = Em.Controller.extend(App.ReloadPopupMixin, {
     console.log('TRACE: Entering host info function');
     var self = this;
     var totalProgress = 0;
-    var tasksData = polledData.tasks || [];
+    var tasksData = polledData.tasks;
     console.log("The value of tasksData is: ", tasksData);
     var requestId = this.get('content.cluster.requestId');
     tasksData.setEach('Tasks.request_id', requestId);
@@ -1040,15 +1028,16 @@ App.WizardStep9Controller = Em.Controller.extend(App.ReloadPopupMixin, {
         polling: polling,
         cluster: this.get('content.cluster.name'),
         requestId: requestId,
-        numPolls: this.get('numPolls'),
-        callback: this.getLogsByRequest,
-        args: [polling, requestId],
-        timeout: 3000,
-        errorLogMessage: 'Install services all retries failed'
+        numPolls: this.get('numPolls')
       },
-      success: 'reloadSuccessCallback',
-      error: 'reloadErrorCallback'
-    });
+      success: 'getLogsByRequestSuccessCallback',
+      error: 'getLogsByRequestErrorCallback'
+    }).retry({times: App.maxRetries, timeout: 3000}).then(null,
+      function () {
+        App.showReloadPopup();
+        console.log('Install services all retries failed');
+      }
+    );
   },
 
   /**
@@ -1056,11 +1045,10 @@ App.WizardStep9Controller = Em.Controller.extend(App.ReloadPopupMixin, {
    * @param {object} data
    * @param {object} opt
    * @param {object} params
-   * @method reloadSuccessCallback
+   * @method getLogsByRequestSuccessCallback
    */
-  reloadSuccessCallback: function (data, opt, params) {
+  getLogsByRequestSuccessCallback: function (data, opt, params) {
     var parsedData = jQuery.parseJSON(data);
-    this._super();
     console.log("TRACE: In success function for the GET logs data");
     console.log("TRACE: Step9 -> The value is: ", parsedData);
     this.set('isPolling', params.polling);
@@ -1069,18 +1057,10 @@ App.WizardStep9Controller = Em.Controller.extend(App.ReloadPopupMixin, {
 
   /**
    * Error-callback for get log by request
-   * @param {object} jqXHR
-   * @param {string} ajaxOptions
-   * @param {string} error
-   * @param {object} opt
-   * @param {object} params
-   * @method reloadErrorCallback
+   * @method getLogsByRequestErrorCallback
    */
-  reloadErrorCallback: function (jqXHR, ajaxOptions, error, opt, params) {
-    this._super(jqXHR, ajaxOptions, error, opt, params);
-    if (jqXHR.status) {
-      this.loadLogData(true);
-    }
+  getLogsByRequestErrorCallback: function () {
+    this.loadLogData(true);
   },
 
   /**
@@ -1115,9 +1095,9 @@ App.WizardStep9Controller = Em.Controller.extend(App.ReloadPopupMixin, {
         error: 'isAllComponentsInstalledErrorCallback'
       }).complete(function(){
           dfd.resolve();
-      });
+        });
     }
-    return dfd.promise();
+    return dfd.promise()
   },
 
   /**
@@ -1154,7 +1134,7 @@ App.WizardStep9Controller = Em.Controller.extend(App.ReloadPopupMixin, {
       });
       this.set('progress', '100');
       this.saveClusterStatus(clusterStatus);
-    } else if (this.get('content.cluster.status') === 'PENDING' && this.get('isPolling')) {
+    } else if (this.get('content.cluster.status') === 'PENDING') {
       this.launchStartServices();
     }
 
@@ -1202,36 +1182,6 @@ App.WizardStep9Controller = Em.Controller.extend(App.ReloadPopupMixin, {
   saveInstalledHosts: function (context) {
     if (!App.get('testMode')) {
       App.router.get(this.get('content.controllerName')).saveInstalledHosts(context);
-    }
-  },
-
-  /**
-   * Load ambari property to determine if we should run service checks on deploy
-   */
-  loadDoServiceChecksFlag: function () {
-    var def = $.Deferred();
-    App.ajax.send({
-      name: 'ambari.service',
-      sender: this,
-      data: {
-        fields: '?fields=RootServiceComponents/properties/skip.service.checks'
-      },
-      success: 'loadDoServiceChecksFlagSuccessCallback'
-    }).complete(function(){
-      def.resolve();
-    });
-    return def.promise();
-  },
-
-  /**
-   *  Callback function Load ambari property to determine if we should run service checks on deploy
-   * @param {Object} data
-   * @method loadDoServiceChecksFlagSuccessCallback
-   */
-  loadDoServiceChecksFlagSuccessCallback: function (data) {
-    var properties = Em.get(data, 'RootServiceComponents.properties');
-    if(properties && properties.hasOwnProperty('skip.service.checks')){
-      this.set('skipServiceChecks', properties['skip.service.checks'] === 'true');
     }
   }
 

@@ -45,6 +45,7 @@ var hivePropsByCategory = {
     'hive.vectorized.execution.reduce.enabled',
     'hive.vectorized.groupby.checkinterval',
     'hive.vectorized.groupby.flush.percent',
+    'hive.compute.query.using.stats',
     'hive.limit.pushdown.memory.usage',
     'hive.optimize.index.filter',
     'hive.exec.reducers.bytes.per.reducer',

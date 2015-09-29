@@ -26,10 +26,10 @@ App.DataNodeComponentView = App.HostComponentView.extend(App.Decommissionable, {
    * Get component decommission status from server
    * @returns {$.ajax}
    */
-  getDNDecommissionStatus: function () {
-    // always get datanode decommission status from active namenode (if NN HA enabled)
+  getDNDecommissionStatus: function() {
+    // always get datanode decommission statue from active namenode (if NN HA enabled)
     var hdfs = App.HDFSService.find().objectAt(0);
-    var activeNNHostName = (!hdfs.get('snameNode') && hdfs.get('activeNameNode')) ? hdfs.get('activeNameNode.hostName') : hdfs.get('nameNode.hostName');
+    var activeNNHostName = (!hdfs.get('snameNode') && hdfs.get('activeNameNode')) ? hdfs.get('activeNameNode.hostName'): hdfs.get('nameNode.hostName');
     return App.ajax.send({
       name: 'host.host_component.decommission_status_datanode',
       sender: this,
@@ -49,8 +49,8 @@ App.DataNodeComponentView = App.HostComponentView.extend(App.Decommissionable, {
    */
   getDNDecommissionStatusSuccessCallback: function (response) {
     var statusObject = Em.get(response, 'metrics.dfs.namenode');
-    if (!Em.isNone(statusObject)) {
-      this.computeStatus(statusObject);
+    if ( statusObject != null) {
+      this.set('decommissionedStatusObject', statusObject);
       return statusObject;
     }
     return null;
@@ -69,39 +69,101 @@ App.DataNodeComponentView = App.HostComponentView.extend(App.Decommissionable, {
    * load Recommission/Decommission status from adminState of each live node
    */
   loadComponentDecommissionStatus: function () {
-    return this.getDNDecommissionStatus();
-  },
-
-  setDesiredAdminState: function (desired_admin_state) {
-    this.setStatusAs(desired_admin_state);
-  },
-
-  /**
-   * compute and set decommission state by namenode metrics
-   * @param curObj
-   */
-  computeStatus: function (curObj) {
     var hostName = this.get('content.hostName');
-
-    if (curObj) {
-      var liveNodesJson = App.parseJSON(curObj.LiveNodes);
+    var dfd = $.Deferred();
+    var self = this;
+    this.getDNDecommissionStatus().done(function () {
+      var curObj = self.get('decommissionedStatusObject');
+      self.set('decommissionedStatusObject', null);
       // HDP-2 stack
-      if (liveNodesJson && liveNodesJson[hostName]) {
-        switch (liveNodesJson[hostName].adminState) {
-          case "In Service":
-            this.setStatusAs('INSERVICE');
-            break;
-          case "Decommission In Progress":
-            this.setStatusAs('DECOMMISSIONING');
-            break;
-          case "Decommissioned":
-            this.setStatusAs('DECOMMISSIONED');
-            break;
+      if (App.get('isHadoop2Stack')) {
+        if (curObj) {
+          var liveNodesJson = App.parseJSON(curObj.LiveNodes);
+          if (liveNodesJson && liveNodesJson[hostName] ) {
+            switch(liveNodesJson[hostName].adminState) {
+              case "In Service":
+                self.set('isComponentRecommissionAvailable', false);
+                self.set('isComponentDecommissioning', false);
+                self.set('isComponentDecommissionAvailable', self.get('isStart'));
+                break;
+              case "Decommission In Progress":
+                self.set('isComponentRecommissionAvailable', true);
+                self.set('isComponentDecommissioning', true);
+                self.set('isComponentDecommissionAvailable', false);
+                break;
+              case "Decommissioned":
+                self.set('isComponentRecommissionAvailable', true);
+                self.set('isComponentDecommissioning', false);
+                self.set('isComponentDecommissionAvailable', false);
+                break;
+            }
+          } else {
+            // if namenode is down, get desired_admin_state to decide if the user had issued a decommission
+            var deferred = $.Deferred();
+            self.getDesiredAdminState().done(function () {
+              var desired_admin_state = self.get('desiredAdminState');
+              self.set('desiredAdminState', null);
+              switch(desired_admin_state) {
+                case "INSERVICE":
+                  self.set('isComponentRecommissionAvailable', false);
+                  self.set('isComponentDecommissioning', false);
+                  self.set('isComponentDecommissionAvailable', self.get('isStart'));
+                  break;
+                case "DECOMMISSIONED":
+                  self.set('isComponentRecommissionAvailable', true);
+                  self.set('isComponentDecommissioning', false);
+                  self.set('isComponentDecommissionAvailable', false);
+                  break;
+              }
+              deferred.resolve(desired_admin_state);
+            });
+          }
         }
-      } else {
-        // if namenode is down, get desired_admin_state to decide if the user had issued a decommission
-        this.getDesiredAdminState();
       }
-    }
+      else {
+        if (curObj) {
+          var liveNodesJson = App.parseJSON(curObj.LiveNodes);
+          var decomNodesJson = App.parseJSON(curObj.DecomNodes);
+          var deadNodesJson = App.parseJSON(curObj.DeadNodes);
+          if (decomNodesJson && decomNodesJson[hostName] ) {
+            self.set('isComponentRecommissionAvailable', true);
+            self.set('isComponentDecommissioning', true);
+            self.set('isComponentDecommissionAvailable', false);
+          } else if (deadNodesJson && deadNodesJson[hostName] ) {
+            self.set('isComponentRecommissionAvailable', true);
+            self.set('isComponentDecommissioning', false);
+            self.set('isComponentDecommissionAvailable', false);
+          } else if (liveNodesJson && liveNodesJson[hostName] ) {
+            self.set('isComponentRecommissionAvailable', false);
+            self.set('isComponentDecommissioning', false);
+            self.set('isComponentDecommissionAvailable', self.get('isStart'));
+          } else {
+            // if namenode is down, get desired_admin_state to decide if the user had issued a decommission
+            var deferred = $.Deferred();
+            self.getDesiredAdminState().done( function () {
+              var desired_admin_state = self.get('desiredAdminState');
+              self.set('desiredAdminState', null);
+              switch(desired_admin_state) {
+                case "INSERVICE":
+                  self.set('isComponentRecommissionAvailable', false);
+                  self.set('isComponentDecommissioning', false);
+                  self.set('isComponentDecommissionAvailable', self.get('isStart'));
+                  break;
+                case "DECOMMISSIONED":
+                  self.set('isComponentRecommissionAvailable', true);
+                  self.set('isComponentDecommissioning', false);
+                  self.set('isComponentDecommissionAvailable', false);
+                  break;
+              }
+              deferred.resolve(desired_admin_state);
+            });
+          }
+        }
+      }
+      dfd.resolve(curObj);
+    });
+    return dfd.promise();
   }
+
+
 });

@@ -19,12 +19,9 @@
 var App = require('app');
 require('controllers/main/views_controller');
 
-var mainViewsController;
 describe('MainViewsController', function () {
 
-  beforeEach(function () {
-    mainViewsController = App.MainViewsController.create();
-  });
+  var mainViewsController = App.MainViewsController.create();
 
   describe('#loadAmbariViews()', function () {
     beforeEach(function () {

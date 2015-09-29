@@ -68,13 +68,6 @@ App.HostPopup = Em.Object.create({
    */
   isPopup: null,
 
-  detailedProperties: {
-    stdout: 'stdout',
-    stderr: 'stderr',
-    outputLog: 'output_log',
-    errorLog: 'error_log'
-  },
-
   abortIcon: Em.View.extend({
     tagName: 'i',
     classNames: ['abort-icon', 'icon-remove-circle', 'pointer'],
@@ -329,7 +322,7 @@ App.HostPopup = Em.Object.create({
   setBackgroundOperationHeader: function (isServiceListHidden) {
     if (this.get('isBackgroundOperations') && !isServiceListHidden) {
       var numRunning =  App.router.get('backgroundOperationsController.allOperationsCount');
-      this.set("popupHeaderName", numRunning + Em.I18n.t('hostPopup.header.postFix').format(numRunning == 1 ? "" : "s"));
+      this.set("popupHeaderName", numRunning + Em.I18n.t('hostPopup.header.postFix'));
     }
   },
 
@@ -364,7 +357,9 @@ App.HostPopup = Em.Object.create({
           updatedService = this.createService(service);
           servicesInfo.insertAt(index, updatedService);
         }
-        updatedService.set('isAbortable',  App.isAccessible('MANAGER') &&  this.isAbortableByStatus(service.status));
+        if (App.get('supports.abortRequests')) {
+          updatedService.set('isAbortable',  App.get('isManager') &&  this.isAbortableByStatus(service.status));
+        }
       }, this);
       this.removeOldServices(servicesInfo, currentServices);
       this.setBackgroundOperationHeader(isServiceListHidden);
@@ -452,7 +447,6 @@ App.HostPopup = Em.Object.create({
       role: App.format.role(_task.Tasks.role),
       stderr: _task.Tasks.stderr,
       stdout: _task.Tasks.stdout,
-      request_id: _task.Tasks.request_id,
       isVisible: true,
       startTime: date.startTime(_task.Tasks.start_time),
       duration: date.durationSummary(_task.Tasks.start_time, _task.Tasks.end_time),
@@ -524,12 +518,11 @@ App.HostPopup = Em.Object.create({
                 if (existTask) {
                   var status = _task.Tasks.status;
                   existTask.set('status', App.format.taskStatus(status));
-                  Em.keys(this.get('detailedProperties')).forEach(function (key) {
-                    var value = _task.Tasks[this.get('detailedProperties')[key]];
-                    if (!Em.isNone(value)) {
-                      existTask.set(key, value);
-                    }
-                  }, this);
+                  existTask.set('stdout', _task.Tasks.stdout);
+                  existTask.set('stderr', _task.Tasks.stderr);
+                  // Verified that this is needed.
+                  existTask.set('outputLog', _task.Tasks.output_log);
+                  existTask.set('errorLog', _task.Tasks.error_log);
                   existTask.set('startTime', date.startTime(_task.Tasks.start_time));
                   existTask.set('duration', date.durationSummary(_task.Tasks.start_time, _task.Tasks.end_time));
                   // Puts some command information to render it 
@@ -607,12 +600,13 @@ App.HostPopup = Em.Object.create({
         self.set('previousServiceId', this.get('currentServiceId'));
       }
     }
-
-    var operation = this.get('servicesInfo').findProperty('name', this.get('serviceName'));
-    if (!operation || (operation && operation.get('progress') == 100)) {
-      this.set('operationInfo', null);
-    } else {
-      this.set('operationInfo', operation);
+    if (App.get('supports.abortRequests')) {
+      var operation = this.get('servicesInfo').findProperty('name', this.get('serviceName'));
+      if (!operation || (operation && operation.get('progress') == 100)) {
+        this.set('operationInfo', null);
+      } else {
+        this.set('operationInfo', operation);
+      }
     }
   },
 
@@ -652,8 +646,6 @@ App.HostPopup = Em.Object.create({
        */
       isOpen: false,
 
-      detailedProperties: self.get('detailedProperties'),
-
       didInsertElement: function(){
         this._super();
         this.set('isOpen', true);
@@ -665,15 +657,15 @@ App.HostPopup = Em.Object.create({
       headerClass: Em.View.extend({
         controller: this,
         template: Ember.Handlebars.compile('{{popupHeaderName}} ' +
-            '{{#unless view.parentView.isHostListHidden}}{{#if controller.operationInfo.isAbortable}}' +
+            '{{#if App.supports.abortRequests}}{{#unless view.parentView.isHostListHidden}}{{#if controller.operationInfo.isAbortable}}' +
             '{{view controller.abortIcon servicesInfoBinding="controller.operationInfo"}}' +
-            '{{/if}}{{/unless}}')
+            '{{/if}}{{/unless}}{{/if}}')
       }),
 
       /**
        * @type {String[]}
        */
-      classNames: ['sixty-percent-width-modal', 'host-progress-popup', 'title-text'],
+      classNames: ['sixty-percent-width-modal', 'host-progress-popup'],
 
       /**
        * for the checkbox: do not show this dialog again
@@ -779,12 +771,6 @@ App.HostPopup = Em.Object.create({
           }
           return [];
         }.property('currentHost.tasks', 'currentHost.tasks.@each.status'),
-
-        willDestroyElement: function () {
-          if (this.get('controller.dataSourceController.name') == 'highAvailabilityProgressPopupController') {
-            this.set('controller.dataSourceController.isTaskPolling', false);
-          }
-        },
 
         /**
          * Preset values on init
@@ -922,6 +908,10 @@ App.HostPopup = Em.Object.create({
          */
         switchLevel: function (levelName) {
           var dataSourceController = this.get('controller.dataSourceController');
+          var securityControllers = [
+            'mainAdminSecurityDisableController',
+            'mainAdminSecurityAddStep4Controller'
+          ];
           if (this.get("controller.isBackgroundOperations")) {
             var levelInfo = dataSourceController.get('levelInfo');
             levelInfo.set('taskId', this.get('openedTaskId'));
@@ -940,26 +930,13 @@ App.HostPopup = Em.Object.create({
             } else {
               this.set('taskCategory', this.get('categories').findProperty('value','all'));
             }
-          } else if (dataSourceController.get('name') == 'highAvailabilityProgressPopupController') {
+          } else if (securityControllers.contains(dataSourceController.get('name'))) {
             if (levelName === 'TASK_DETAILS') {
               this.set('isLevelLoaded', false);
-              dataSourceController.startTaskPolling(this.get('openedTask.request_id'), this.get('openedTask.id'));
-              Em.keys(this.get('parentView.detailedProperties')).forEach(function (key) {
-                dataSourceController.addObserver('taskInfo.' + this.get('parentView.detailedProperties')[key], this, 'updateTaskInfo');
-              }, this);
+              dataSourceController.startUpdatingTask(this.get('controller.currentServiceId'), this.get('openedTaskId'));
             } else {
-              dataSourceController.stopTaskPolling();
+              dataSourceController.stopUpdatingTask(this.get('controller.currentServiceId'));
             }
-          }
-        },
-        updateTaskInfo: function () {
-          var dataSourceController = this.get('controller.dataSourceController');
-          var openedTask = this.get('openedTask');
-          if (openedTask && openedTask.get('id') == dataSourceController.get('taskInfo.id')) {
-            this.set('isLevelLoaded', true);
-            Em.keys(this.get('parentView.detailedProperties')).forEach(function (key) {
-              openedTask.set(key, dataSourceController.get('taskInfo.' + key));
-            }, this);
           }
         },
         /**
@@ -980,7 +957,9 @@ App.HostPopup = Em.Object.create({
           this.set("parentView.isHostListHidden", false);
           this.set("parentView.isTaskListHidden", true);
           this.get("controller").set("popupHeaderName", this.get("controller.serviceName"));
-          this.get("controller").set("operationInfo", this.get('controller.servicesInfo').findProperty('name', this.get('controller.serviceName')));
+          if (App.get('supports.abortRequests')) {
+            this.get("controller").set("operationInfo", this.get('controller.servicesInfo').findProperty('name', this.get('controller.serviceName')));
+          }
           this.switchLevel("HOSTS_LIST");
         },
 
@@ -1027,8 +1006,9 @@ App.HostPopup = Em.Object.create({
           this.switchLevel("HOSTS_LIST");
           var servicesInfo = this.get("controller.hosts");
           this.set("controller.popupHeaderName", event.context.get("name"));
-          this.set("controller.operationInfo", event.context);
-
+          if (App.get('supports.abortRequests')) {
+            this.set("controller.operationInfo", event.context);
+          }
           //apply lazy loading on cluster with more than 100 nodes
           if (servicesInfo.length > 100) {
             this.set('hosts', servicesInfo.slice(0, 50));

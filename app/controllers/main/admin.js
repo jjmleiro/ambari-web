@@ -20,13 +20,7 @@ var App = require('app');
 
 App.MainAdminController = Em.Controller.extend({
   name: 'mainAdminController',
-
-  /**
-   * @type {string}
-   * @default null
-   */
-  category: null,
-
+  category: 'user',
   /**
    * Check if access page available.
    * Turn on if YARN service is installed with Application Timeline Server component and TEZ installed too.

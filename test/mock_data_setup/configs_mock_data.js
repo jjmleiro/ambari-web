@@ -30,10 +30,12 @@ module.exports = {
       },
       {
         "tag":"version1",
-        "type":"hadoop-env",
+        "type":"global",
         "properties":{
           "hadoop_heapsize":"1024",
-          "hdfs_user": "hdfs"
+          "storm_log_dir": "/var/log/storm",
+          "stormuiserver_host": "c6401.ambari.apache.org",
+          "nonexistent_property": "some value"
         }
       },
       {
@@ -71,15 +73,6 @@ module.exports = {
         }
       },
       {
-        "tag": "version1",
-        "type": "storm-env",
-        "properties": {
-          "nonexistent_property": "some value",
-          "storm_log_dir": "/var/log/storm",
-          "stormuiserver_host": "c6401.ambari.apache.org"
-        }
-      },
-      {
         "tag":"version1",
         "type":"zoo.cfg",
         "properties": {
@@ -93,9 +86,9 @@ module.exports = {
   },
   setupServiceConfigTagsObject: function(serviceName) {
     var configTags = {
-      STORM: ['storm-env','storm-site'],
-      HDFS: ['hadoop-env','hdfs-site','core-site','hdfs-log4j'],
-      ZOOKEEPER: ['hadoop-env', 'zoo.cfg']
+      STORM: ['global','storm-site'],
+      HDFS: ['global','hdfs-site','core-site','hdfs-log4j'],
+      ZOOKEEPER: ['global', 'zoo.cfg']
     };
     var configTagsObject = [];
     if (serviceName) {
@@ -205,16 +198,10 @@ module.exports = {
         "filename": "capacity-scheduler.xml"
       },
       {
-        "name": "hbase_log_dir",
-        "value": "/hadoop/hbase",
-        "serviceName": "HBASE",
-        "filename": "hbase-env.xml"
-      },
-      {
-        "name": "hbase_log_dir",
-        "value": "/hadoop/ams-hbase",
-        "serviceName": "AMBARI_METRICS",
-        "filename": "ams-hbase-env.xml"
+        "serviceName": "YARN",
+        "name": "yarn.scheduler.capacity.root.default.capacity",
+        "value": "100",
+        "filename": "capacity-scheduler.xml"
       }
     ];
   },
@@ -226,7 +213,7 @@ module.exports = {
           "c6401.ambari.apache.org",
           "c6402.ambari.apache.org"
         ],
-        "recommendedValue":"['c6401.ambari.apache.org','c6402.ambari.apache.org']",
+        "defaultValue":"['c6401.ambari.apache.org','c6402.ambari.apache.org']",
         "filename":"storm-site.xml",
         "isUserProperty":false,
         "isOverridable":false,
@@ -243,7 +230,7 @@ module.exports = {
       {
         "name":"single_line_property",
         "value":"value",
-        "recommendedValue":"value",
+        "defaultValue":"value",
         "filename":"storm-site.xml",
         "isUserProperty":true,
         "isOverridable":true,
@@ -257,7 +244,7 @@ module.exports = {
       {
         "name":"multi_line_property",
         "value":"value \n value",
-        "recommendedValue":"value \n value",
+        "defaultValue":"value \n value",
         "filename":"storm-site.xml",
         "isUserProperty":true,
         "isOverridable":true,
@@ -271,8 +258,8 @@ module.exports = {
       {
         "name":"nonexistent_property",
         "value":"some value",
-        "recommendedValue":"some value",
-        "filename":"storm-env.xml",
+        "defaultValue":"some value",
+        "filename":"global.xml",
         "isUserProperty":false,
         "isOverridable":true,
         "showLabel":true,
@@ -285,7 +272,7 @@ module.exports = {
       {
         "name":"dfs.datanode.data.dir",
         "value":"/a,/b",
-        "recommendedValue":"/a,/b",
+        "defaultValue":"/a,/b",
         "filename":"hdfs-site.xml",
         "isUserProperty":false,
         "isOverridable":true,
@@ -305,7 +292,7 @@ module.exports = {
       {
         "name":"content",
         "value":"custom mock property",
-        "recommendedValue":"custom mock property",
+        "defaultValue":"custom mock property",
         "filename":"hdfs-site.xml",
         "isUserProperty":false,
         "isOverridable":true,
@@ -325,7 +312,7 @@ module.exports = {
       {
         "name":"content",
         "value":"hdfs log4j content",
-        "recommendedValue":"hdfs log4j content",
+        "defaultValue":"hdfs log4j content",
         "filename":"hdfs-log4j.xml",
         "isUserProperty":false,
         "isOverridable":true,
@@ -345,8 +332,8 @@ module.exports = {
       {
         "name":"storm_log_dir",
         "value":"/var/log/storm",
-        "recommendedValue":"/var/log/storm",
-        "filename":"storm-env.xml",
+        "defaultValue":"/var/log/storm",
+        "filename":"global.xml",
         "isUserProperty":false,
         "isOverridable":true,
         "showLabel":true,
@@ -363,182 +350,5 @@ module.exports = {
         "displayName":"storm_log_dir"
       }
     ];
-  },
-
-  advancedConfigs: {
-    items: [
-      {
-        "StackConfigurations" : {
-          "final" : "false",
-          "property_description" : "Proxy user group.",
-          "property_name" : "proxyuser_group",
-          "property_type" : [
-            "GROUP"
-          ],
-          "property_value" : "users",
-          "service_name" : "HDFS",
-          "stack_name" : "HDP",
-          "stack_version" : "2.2",
-          "type" : "hadoop-env.xml"
-        }
-      },
-      {
-        "StackConfigurations" : {
-          "final" : "true",
-          "property_description" : "dfs.datanode.data.dir description",
-          "property_name" : "dfs.datanode.data.dir",
-          "property_type" : [ ],
-          "property_value" : "/hadoop/hdfs/data",
-          "service_name" : "HDFS",
-          "stack_name" : "HDP",
-          "stack_version" : "2.2",
-          "type" : "hdfs-site.xml"
-        }
-      },
-      {
-        "StackConfigurations" : {
-          "final" : "true",
-          "property_description" : "to enable dfs append",
-          "property_name" : "dfs.support.append",
-          "property_type" : [ ],
-          "property_value" : "true",
-          "service_name" : "HDFS",
-          "stack_name" : "HDP",
-          "stack_version" : "2.2",
-          "type" : "hdfs-site.xml"
-        }
-      },
-      {
-        "StackConfigurations" : {
-          "final" : "false",
-          "property_description" : "User to run HDFS as",
-          "property_name" : "hdfs_user",
-          "property_type" : [
-            "USER"
-          ],
-          "property_value" : "hdfs",
-          "service_name" : "HDFS",
-          "stack_name" : "HDP",
-          "stack_version" : "2.2",
-          "type" : "hadoop-env.xml"
-        }
-      },
-      {
-        "StackConfigurations" : {
-          "final" : "false",
-          "property_description" : "The permissions that should be there on dfs.datanode.data.dir\n      directories. The datanode will not come up if the permissions are\n      different on existing dfs.datanode.data.dir directories. If the directories\n      don't exist, they will be created with this permission.",
-          "property_name" : "dfs.datanode.data.dir.perm",
-          "property_type" : [ ],
-          "property_value" : "750",
-          "service_name" : "HDFS",
-          "stack_name" : "HDP",
-          "stack_version" : "2.2",
-          "type" : "hdfs-site.xml"
-        }
-      },
-      {
-        "StackConfigurations" : {
-          "final" : "false",
-          "property_description" : "\n      DB user password.\n\n      IMPORTANT: if password is emtpy leave a 1 space string, the service trims the value,\n      if empty Configuration assumes it is NULL.\n    ",
-          "property_name" : "oozie.service.JPAService.jdbc.password",
-          "property_type" : [
-            "PASSWORD"
-          ],
-          "property_value" : " ",
-          "service_name" : "OOZIE",
-          "stack_name" : "HDP",
-          "stack_version" : "2.2",
-          "type" : "oozie-site.xml"
-        }
-      },
-      {
-        "StackConfigurations" : {
-          "final" : "false",
-          "property_description" : "prop description",
-          "property_name" : "storm_log_dir",
-          "property_type" : [],
-          "property_value" : " ",
-          "service_name" : "STORM",
-          "stack_name" : "HDP",
-          "stack_version" : "2.2",
-          "type" : "storm-env.xml"
-        }
-      }
-
-    ]
-  },
-  
-  advancedClusterConfigs: {
-    items: [
-      {
-        "StackLevelConfigurations" : {
-          "final" : "false",
-          "property_description" : "Whether to ignore failures on users and group creation",
-          "property_name" : "ignore_groupsusers_create",
-          "property_type" : [ ],
-          "property_value" : "false",
-          "stack_name" : "HDP",
-          "stack_version" : "2.2",
-          "type" : "cluster-env.xml"
-        }
-      },
-      {
-        "StackLevelConfigurations" : {
-          "final" : "false",
-          "property_description" : "Hadoop user group.",
-          "property_name" : "user_group",
-          "property_type" : [
-            "GROUP"
-          ],
-          "property_value" : "hadoop",
-          "stack_name" : "HDP",
-          "stack_version" : "2.2",
-          "type" : "cluster-env.xml"
-        }
-      },
-      {
-        "StackLevelConfigurations" : {
-          "final" : "false",
-          "property_description" : "",
-          "property_name" : "smokeuser",
-          "property_type" : [
-            "USER"
-          ],
-          "property_value" : "ambari-qa",
-          "stack_name" : "HDP",
-          "stack_version" : "2.2",
-          "type" : "cluster-env.xml"
-        }
-      },
-      {
-        "StackLevelConfigurations" : {
-          "final" : "false",
-          "property_description" : "",
-          "property_name" : "zk_user",
-          "property_type" : [
-            "USER"
-          ],
-          "property_value" : "zookeeper",
-          "stack_name" : "HDP",
-          "stack_version" : "2.2",
-          "type" : "cluster-env.xml"
-        }
-      },
-      {
-        "StackLevelConfigurations" : {
-          "final" : "false",
-          "property_description" : "",
-          "property_name" : "mapred_user",
-          "property_type" : [
-            "USER"
-          ],
-          "property_value" : "mapreduce",
-          "stack_name" : "HDP",
-          "stack_version" : "2.2",
-          "type" : "cluster-env.xml"
-        }
-      }
-    ]
   }
-  
 }

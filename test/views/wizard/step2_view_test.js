@@ -41,13 +41,11 @@ describe('App.WizardStep0View', function () {
   describe('#didInsertElement', function() {
     beforeEach(function () {
       sinon.stub(App, 'popover', Em.K);
-      sinon.stub(App, 'tooltip', Em.K);
       view.set('controller.hostsError', 'some text');
       view.set('controller.sshKeyError', 'some text');
     });
     afterEach(function () {
       App.popover.restore();
-      App.tooltip.restore();
     });
     it('should clean hostsError', function () {
       view.didInsertElement();
@@ -60,10 +58,6 @@ describe('App.WizardStep0View', function () {
     it('should create popover', function () {
       view.didInsertElement();
       expect(App.popover.calledOnce).to.equal(true);
-    });
-    it('should create tooltip', function () {
-      view.didInsertElement();
-      expect(App.tooltip.calledOnce).to.equal(true);
     });
   });
 

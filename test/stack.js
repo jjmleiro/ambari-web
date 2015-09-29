@@ -27,7 +27,7 @@ module.exports = {
         "stack_name": "HDP",
         "stack_version": "1.3"
       },
-      "operating_systems": [
+      "operatingSystems": [
         {
           "OperatingSystems": {
             "os_type": "redhat5",
@@ -107,7 +107,7 @@ module.exports = {
         "stack_name": "HDP",
         "stack_version": "2.0.6"
       },
-      "operating_systems": [
+      "operatingSystems": [
         {
           "OperatingSystems": {
             "os_type": "redhat5",
@@ -188,7 +188,7 @@ module.exports = {
         "stack_name": "HDP",
         "stack_version": "2.1"
       },
-      "operating_systems": [
+      "operatingSystems": [
         {
           "OperatingSystems": {
             "os_type": "redhat5",

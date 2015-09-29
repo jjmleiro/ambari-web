@@ -17,7 +17,7 @@
 
 var App = require('app');
 
-App.MainHostServiceConfigsController = App.MainServiceInfoConfigsController.extend(App.ConfigOverridable, {
+App.MainHostServiceConfigsController = App.MainServiceInfoConfigsController.extend({
   name: 'mainHostServiceConfigsController',
   host: null,
   isHostsConfigsPage: true,
@@ -70,8 +70,8 @@ App.MainHostServiceConfigsController = App.MainServiceInfoConfigsController.exte
    */
   switchHostGroup: function () {
     var self = this;
-    this.launchSwitchConfigGroupOfHostDialog(this.get('selectedConfigGroup'), this.get('configGroups'), this.get('host.hostName'), function (newGroup) {
+    App.config.launchSwitchConfigGroupOfHostDialog(this.get('selectedConfigGroup'), this.get('configGroups'), this.get('host.hostName'), function (newGroup) {
       self.set('selectedConfigGroup', newGroup);
-    });
+    })
   }
 });

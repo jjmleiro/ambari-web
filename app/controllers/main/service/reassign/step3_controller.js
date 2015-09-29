@@ -18,12 +18,4 @@
 
 var App = require('app');
 
-App.ReassignMasterWizardStep3Controller = Em.Controller.extend({
-  name: 'reassignMasterWizardStep3Controller',
-
-  submit: function() {
-    App.get('router.mainAdminKerberosController').getKDCSessionState(function() {
-      App.router.send("next");
-    });
-  }
-});
+App.ReassignMasterWizardStep3Controller = Em.Controller.extend();

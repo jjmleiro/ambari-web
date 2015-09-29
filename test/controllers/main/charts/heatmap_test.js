@@ -47,33 +47,41 @@ describe('MainChartsHeatmapController', function () {
   });
 
   describe('#showHeatMapMetric()', function () {
-    beforeEach(function () {
-      sinon.stub(App.ajax, 'send', function () {
-        return {
-          done: function (callback) {
-            callback();
-          }
-        }
-      });
-    });
-
-    afterEach(function () {
-      App.ajax.send.restore();
-    });
-
     var controller = App.MainChartsHeatmapController.create({
-      activeWidgetLayout: Em.Object.create({
-        displayName: 'widget',
-        id: '1',
-        scope: 'CLUSTER',
-        layoutName: 'defualt_layout',
-        sectionName: 'default_section'
-      })
+      allMetrics: [],
+      selectedMetric: Ember.Object.create({maximumValue: 100}),
+      loadMetrics: function () {
+      }
     });
+    controller.set("selectedMetric", 100);
+    it('should not set selectedMetric event.context if it is not defined', function () {
+      controller.showHeatMapMetric({});
+      expect(controller.get('selectedMetric')).to.equal(100);
+    });
+    it('should set selectedMetric event.context if it is defined', function () {
+      controller.showHeatMapMetric({context: 5});
+      expect(controller.get('selectedMetric')).to.equal(5);
+    });
+  });
 
-    it('should call App.ajax', function () {
-      controller.showHeatMapMetric({context:{id: 2}});
-      expect(App.ajax.send.called).to.be.true;
+  describe('#loadMetrics()', function () {
+    var controller = App.MainChartsHeatmapController.create({
+      testPassed: false,
+      allMetrics: [],
+      inputMaximum: 10
+    });
+    controller.set('selectedMetric', Ember.Object.create({
+      maximumValue: 100,
+      refreshHostSlots: function () {
+        controller.set('testPassed', true);
+      }
+    }));
+    controller.loadMetrics();
+    it('should set inputMaximum as selectedMetric.maximumValue', function () {
+      expect(controller.get('inputMaximum')).to.equal(100);
+    });
+    it('should call refreshHostSlots from selectedMetric', function () {
+      expect(controller.get('testPassed')).to.equal(true);
     });
   });
 

@@ -42,18 +42,15 @@
     </div>
 </div>
 
-{{#if controller.isLoaded}}
-  <div id="serviceConfig">
 
-    {{{t admin.rm_highAvailability.wizard.step3.confirm.config.body}}}
+<div id="serviceConfig">
 
-    {{view App.ServiceConfigView}}
-  </div>
-{{else}}
-  <div class="spinner"></div>
-{{/if}}
+  {{{t admin.rm_highAvailability.wizard.step3.confirm.config.body}}}
+
+  {{view App.ServiceConfigView}}
+</div>
 
 <div class="btn-area">
     <a class="btn" {{action back}}>&larr; {{t common.back}}</a>
-    <a class="btn btn-success pull-right" {{action submit target="controller"}} {{bindAttr disabled="controller.isSubmitDisabled"}}>{{t common.next}} &rarr;</a>
+    <a class="btn btn-success pull-right" {{action next}}>{{t common.next}} &rarr;</a>
 </div>

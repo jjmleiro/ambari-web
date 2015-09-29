@@ -21,12 +21,6 @@ App.WizardStep1View = Em.View.extend({
 
   templateName: require('templates/wizard/step1'),
 
-  /**
-   * Is Repositories Accordion collapsed
-   * @type {bool}
-   */
-  isRLCollapsed: true,
-
   didInsertElement: function () {
     if (this.get('isRLCollapsed')) {
       this.$('.accordion-body').hide();
@@ -49,7 +43,10 @@ App.WizardStep1View = Em.View.extend({
 
   operatingSystems: function () {
     var selectedStack = this.get('controller.selectedStack');
-    return Em.isNone(selectedStack) ? [] : selectedStack.get('operatingSystems');
+    var result = [];
+    if (!!selectedStack)
+      result = selectedStack.get('operatingSystems');
+    return result;
   }.property('controller.selectedStack'),
 
   /**
@@ -62,32 +59,27 @@ App.WizardStep1View = Em.View.extend({
    */
   allRepositories: function () {
     var selectedStack = this.get('controller.selectedStack');
-    return Em.isNone(selectedStack) ? [] : selectedStack.get('repositories');
+    var result = [];
+    if (!!selectedStack)
+      result = selectedStack.get('repositories');
+    return result;
   }.property('controller.selectedStack'),
 
   /**
    * Verify if some repo has empty base-url
    * @type {bool}
    */
-  invalidFormatUrlExist: function () {
-    return this.get('allRepositories').someProperty('invalidFormatError', true);
-  }.property('allRepositories.@each.invalidFormatError'),
+  emptyRepoExist: function () {
+    return this.get('allRepositories').someProperty('emptyError', true);
+  }.property('allRepositories.@each.emptyError'),
 
   /**
    * Disable submit button flag
    * @type {bool}
    */
   isSubmitDisabled: function () {
-    return this.get('invalidFormatUrlExist') || this.get('isNoOsChecked') || this.get('invalidUrlExist') || this.get('controller.content.isCheckInProgress');
-  }.property('invalidFormatUrlExist', 'isNoOsChecked', 'invalidUrlExist', 'controller.content.isCheckInProgress'),
-
-  /**
-   * Enable error count badge
-   * @type {bool}
-   */
-  showErrorsWarningCount: function () {
-    return this.get('isSubmitDisabled') && !!this.get('totalErrorCnt');
-  }.property('isSubmitDisabled', 'totalErrorCnt'),
+    return this.get('emptyRepoExist') || this.get('isNoOsChecked') || this.get('invalidUrlExist');
+  }.property('emptyRepoExist', 'isNoOsChecked', 'invalidUrlExist'),
 
   /**
    * Verify if some invalid repo-urls exist
@@ -110,16 +102,22 @@ App.WizardStep1View = Em.View.extend({
    * @type {number}
    */
   totalErrorCnt: function () {
-    var invalidFormatCnt = this.get('allRepositories').filterProperty('invalidFormatError').length;
+    var emptyCnt = this.get('allRepositories').filterProperty('emptyError').length;
     var invalidCnt = this.get('allRepositories').filterProperty('validation', App.Repository.validation['INVALID']).length;
     if (this.get('isNoOsChecked')) {
       return 1;
-    } else if (invalidFormatCnt || invalidCnt) {
-      return invalidFormatCnt + invalidCnt;
+    } else if (emptyCnt || invalidCnt) {
+      return emptyCnt + invalidCnt;
     } else {
       return 0;
     }
-  }.property('allRepositories.@each.invalidFormatError', 'isNoOsChecked', 'allRepositories.@each.validation'),
+  }.property('allRepositories.@each.emptyError', 'isNoOsChecked', 'allRepositories.@each.validation'),
+
+  /**
+   * Is Repositories Accordion collapsed
+   * @type {bool}
+   */
+  isRLCollapsed: true,
 
   /**
    * Checkbox for each stack
@@ -180,10 +178,8 @@ App.WizardStep1View = Em.View.extend({
       operatingSystems.forEach(function (os) {
         if (!os.get('isSelected')) {
           os.get('repositories').forEach(function (repository) {
-            repository.setProperties({
-              baseUrl: repository.get('latestBaseUrl'),
-              validation: App.Repository.validation['PENDING']
-            });
+            repository.set('baseUrl', repository.get('latestBaseUrl'));
+            repository.set('validation', App.Repository.validation['PENDING']);
           });
         } else {
           os.get('repositories').forEach(function (repository) {
@@ -202,10 +198,8 @@ App.WizardStep1View = Em.View.extend({
    * @param {object} event
    */
   undoGroupLocalRepository: function (event) {
-    event.context.setProperties({
-      baseUrl: event.context.get('latestBaseUrl'),
-      validation: App.Repository.validation['PENDING']
-    });
+    event.context.set('baseUrl', event.context.get('latestBaseUrl'));
+    event.context.set('validation', App.Repository.validation['PENDING']);
   },
 
   /**
@@ -214,13 +208,8 @@ App.WizardStep1View = Em.View.extend({
    * @param {object} event
    */
   clearGroupLocalRepository: function (event) {
-    if (!event.context.get('isSelected')) {
-      return;
-    }
-    event.context.setProperties({
-      baseUrl: '',
-      validation: App.Repository.validation['PENDING']
-    });
+    event.context.set('baseUrl', '');
+    event.context.set('validation', App.Repository.validation['PENDING']);
   },
 
   /**
@@ -232,10 +221,8 @@ App.WizardStep1View = Em.View.extend({
     var repositories = this.get('allRepositories');
     repositories.forEach(function (repository) {
       if (repository.get('lastBaseUrl') != repository.get('baseUrl')) {
-        repository.setProperties({
-          lastBaseUrl: repository.get('baseUrl'),
-          validation: App.Repository.validation['PENDING']
-        });
+        repository.set('lastBaseUrl', repository.get('baseUrl'));
+        repository.set('validation', App.Repository.validation['PENDING']);
       }
     }, this);
   }.observes('allRepositories.@each.baseUrl')

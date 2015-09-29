@@ -24,20 +24,20 @@ App.MainAdminView = Em.View.extend({
   categories: function() {
     var items = [];
     items.push({
-      name: 'stackAndUpgrade',
-      url: 'stackAndUpgrade.index',
-      label: Em.I18n.t('admin.stackUpgrade.title')
+      name: 'repositories',
+      url: 'adminRepositories',
+      label: Em.I18n.t('common.repositories')
     });
     items.push({
-      name: 'adminServiceAccounts',
+      name: 'serviceAccounts',
       url: 'adminServiceAccounts',
       label: Em.I18n.t('common.serviceAccounts')
     });
-    if (!App.get('isHadoopWindowsStack')) {
+    if (App.supports.secureCluster) {
       items.push({
-        name: 'kerberos',
-        url: 'adminKerberos.index',
-        label: Em.I18n.t('common.kerberos')
+        name: 'security',
+        url: 'adminSecurity.index',
+        label: Em.I18n.t('common.security')
       });
     }
     return items;
@@ -49,11 +49,6 @@ App.MainAdminView = Em.View.extend({
     isActive: function () {
       return this.get('item') === this.get('parentView.selected');
     }.property('item', 'parentView.selected')
-  }),
-
-  willDestroyElement: function () {
-    //reset selected category in Admin sub-menu after leaving admin section
-    this.set('controller.category', null);
-  }
+  })
 });
 

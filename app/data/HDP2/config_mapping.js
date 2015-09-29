@@ -29,7 +29,7 @@ var configs = [
   },
   {
     "name": "hadoop.proxyuser.<foreignKey[0]>.hosts",
-    "templateName": ["hive_master_hosts"],
+    "templateName": ["hivemetastore_host"],
     "foreignKey": ["hive_user"],
     "value": "<templateName[0]>",
     "filename": "core-site.xml",
@@ -61,7 +61,7 @@ var configs = [
   },
   {
     "name": "hadoop.proxyuser.<foreignKey[0]>.hosts",
-    "templateName": ["hive_master_hosts"],
+    "templateName": ["hivemetastore_host"],
     "foreignKey": ["webhcat_user"],
     "value": "<templateName[0]>",
     "filename": "core-site.xml",
@@ -83,22 +83,7 @@ var configs = [
     "filename": "core-site.xml",
     "isOverridable": true
   },
-  {
-    "name": "hadoop.proxyuser.<foreignKey[0]>.groups",
-    "templateName": [],
-    "foreignKey": ["hdfs_user"],
-    "value": "*",
-    "filename": "core-site.xml",
-    "isOverridable": true
-  },
-  {
-    "name": "hadoop.proxyuser.<foreignKey[0]>.hosts",
-    "templateName": [],
-    "foreignKey": ["hdfs_user"],
-    "value": "*",
-    "filename": "core-site.xml",
-    "isOverridable": true
-  },
+
 /**********************************Oozie******************************/
 
   {

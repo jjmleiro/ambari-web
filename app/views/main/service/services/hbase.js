@@ -32,8 +32,13 @@ App.MainDashboardServiceHbaseView = App.MainDashboardServiceView.extend({
    * Passive master components
    */
   passiveMasters: function () {
-    return this.get('masters').filterProperty('haStatus', 'false');
+    if(App.supports.multipleHBaseMasters){
+      return this.get('masters').filterProperty('haStatus', 'false');
+    }
+    return [];
   }.property('masters'),
+
+
 
   regionServesText: function () {
     if (this.get('service.regionServersTotal') == 0) {
@@ -45,29 +50,23 @@ App.MainDashboardServiceHbaseView = App.MainDashboardServiceView.extend({
     }
   }.property("service"),
 
-  phoenixServersText: function () {
-    if (this.get('service.phoenixServersTotal') == 0) {
-      return '';
-    } else if (this.get('service.phoenixServersTotal') > 1) {
-      return Em.I18n.t('services.service.summary.viewHosts');
-    } else {
-      return Em.I18n.t('services.service.summary.viewHost');
-    }
-  }.property("service"),
-
-  showPhoenixInfo: function () {
-    return !!this.get('service.phoenixServersTotal');
-  }.property("service.phoenixServersTotal"),
-
   /**
    * One(!) active master component
    */
   activeMaster: function () {
-    return this.get('masters').findProperty('haStatus', 'true');
+    if(App.supports.multipleHBaseMasters){
+      return this.get('masters').findProperty('haStatus', 'true');
+    } else {
+      return this.get('masters')[0];
+    }
   }.property('masters'),
 
   activeMasterTitle: function(){
-    return this.t('service.hbase.activeMaster');
+    if(App.supports.multipleHBaseMasters){
+      return this.t('service.hbase.activeMaster');
+    } else {
+      return this.get('activeMaster.host.publicHostName');
+    }
   }.property('activeMaster'),
 
   masterServerHeapSummary: function () {
@@ -132,11 +131,6 @@ App.MainDashboardServiceHbaseView = App.MainDashboardServiceView.extend({
       componentName: 'HBASE_REGIONSERVER'
     });
     //return this.get('service.regionServers').objectAt(0);
-  }.property(),
-
-  phoenixServerComponent: function () {
-    return Em.Object.create({
-      componentName: 'PHOENIX_QUERY_SERVER'
-    });
   }.property()
+
 });

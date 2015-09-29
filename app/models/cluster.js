@@ -23,17 +23,23 @@ App.Cluster = DS.Model.extend({
   clusterName: DS.attr('string'),
   stackName: DS.attr('string'),
   version: DS.attr('string'),
-  totalHosts:DS.attr('number'),
-  securityType: DS.attr('string'),
+  hosts: DS.hasMany('App.Host'),
+  racks: DS.hasMany('App.Rack'),
+  maxHostsPerRack: DS.attr('number'),
   /**
    * Array containing desired configs. New array
    * should be set by instances of class.
    */
-  desiredConfigs: null,
-
-  isKerberosEnabled: function() {
-    return this.get('securityType') === 'KERBEROS';
-  }.property('securityType')
+  desiredConfigs: null
 });
 
-App.Cluster.FIXTURES = [];
+App.Cluster.FIXTURES = [/*
+  {
+    id: 1,
+    cluster_name: 'cluster1',
+    stack_name: 'HDP',
+    hosts: [1, 2, 3, 4],
+    racks: [1, 2, 3, 4, 5, 6],
+    max_hosts_per_rack: 10
+  }*/
+];

@@ -21,12 +21,10 @@ var filters = require('views/common/filter_view');
 var sort = require('views/common/sort_view');
 var date = require('utils/date');
 
-App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
+App.MainHostView = App.TableView.extend(App.TableServerProvider, {
   templateName:require('templates/main/host'),
 
   tableName: 'Hosts',
-  updaterBinding: 'App.router.updateController',
-  filterConditions: [],
 
   /**
    * Select/deselect all visible hosts flag
@@ -38,21 +36,32 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
    * Contains all selected hosts on cluster
    */
   selectedHosts: [],
-
   /**
-   * Request error data
+   * total number of installed hosts
    */
-  requestError: null,
+  totalCount: function () {
+    return this.get('controller.hostsCountMap')['TOTAL'] || 0;
+  }.property('controller.hostsCountMap'),
 
-  colspan: function () {
-    return 11 + +App.get('supports.stackUpgrade');
-  }.property("App.supports.stackUpgrade"),
+  filteredCount: function () {
+    return this.get('controller.filteredCount');
+  }.property('controller.filteredCount'),
 
   /**
    * List of hosts in cluster
    * @type {Array}
    */
-  contentBinding: 'controller.content',
+  content: function () {
+    var controllerName = this.get('controller.name');
+    var selectedHosts = App.db.getSelectedHosts(controllerName);
+    if (this.get('controller')) {
+      return this.get('controller.content').filter(function (host) {
+        host.set('selected', selectedHosts.contains(host.get('hostName')));
+        return true;
+      });
+    }
+    return [];
+  }.property('controller.content'),
 
   onRequestErrorHandler: function() {
     this.set('requestError', null);
@@ -60,6 +69,20 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
     this.set('filteringComplete', true);
     this.propertyDidChange('pageContent');
   }.observes('requestError'),
+
+  /**
+   * Contains content to show on the current page of data page view
+   * @type {Array}
+   */
+  pageContent: function () {
+    var content = this.get('filteredContent');
+    if (content.length > this.get('endIndex') - this.get('startIndex') + 1) {
+      content = content.slice(0, this.get('endIndex') - this.get('startIndex') + 1);
+    }
+    return content.sort(function (a, b) {
+      return a.get('index') - b.get('index');
+    });
+  }.property('filteredCount'),
 
   /**
    * flag to toggle displaying selected hosts counter
@@ -75,34 +98,6 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
   filteredContentInfo: function () {
     return this.t('hosts.filters.filteredHostsInfo').format(this.get('filteredCount'), this.get('totalCount'));
   }.property('filteredCount', 'totalCount'),
-
-  /**
-   * request latest data filtered by new parameters
-   * called when trigger property(<code>refreshTriggers</code>) is changed
-   */
-  refresh: function () {
-    App.loadTimer.start('Hosts Page');
-    this.set('filteringComplete', false);
-    var updaterMethodName = this.get('updater.tableUpdaterMap')[this.get('tableName')];
-    this.get('updater')[updaterMethodName](this.updaterSuccessCb.bind(this), this.updaterErrorCb.bind(this), true);
-    return true;
-  },
-
-  /**
-   * reset filters value by column to which filter belongs
-   * @param columns {Array}
-   */
-  resetFilterByColumns: function (columns) {
-    var filterConditions = this.get('filterConditions');
-    columns.forEach(function (iColumn) {
-      var filterCondition = filterConditions.findProperty('iColumn', iColumn);
-
-      if (filterCondition) {
-        filterCondition.value = '';
-        this.saveFilterConditions(filterCondition.iColumn, filterCondition.value, filterCondition.type, filterCondition.skipFilter);
-      }
-    }, this);
-  },
 
   /**
    * Return pagination information displayed on the page
@@ -156,7 +151,11 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
     change: function () {
       this.get('parentView').saveDisplayLength();
       var self = this;
-      if (this.get('parentView.startIndex') !== 1 && this.get('parentView.startIndex') !== 0) {
+      if (this.get('parentView.startIndex') === 1 || this.get('parentView.startIndex') === 0) {
+        Ember.run.next(function () {
+          self.get('parentView').updateViewProperty();
+        });
+      } else {
         Ember.run.next(function () {
           self.set('parentView.startIndex', 1);
         });
@@ -167,6 +166,24 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
   saveStartIndex: function () {
     this.set('controller.startIndex', this.get('startIndex'));
   }.observes('startIndex'),
+
+  /**
+   * Calculates default value for startIndex property after applying filter or changing displayLength
+   */
+  updatePaging: function (controller, property) {
+    var displayLength = this.get('displayLength');
+    var filteredContentLength = this.get('filteredCount');
+    if (property == 'displayLength' && this.get('filteringComplete')) {
+      this.set('startIndex', Math.min(1, filteredContentLength));
+    } else if (!filteredContentLength) {
+      this.set('startIndex', 0);
+    } else if (this.get('startIndex') > filteredContentLength) {
+      this.set('startIndex', Math.floor((filteredContentLength - 1) / displayLength) * displayLength + 1);
+    } else if (!this.get('startIndex')) {
+      this.set('startIndex', 1);
+    }
+  },
+
 
   clearFiltersObs: function() {
     var self = this;
@@ -181,14 +198,21 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
    */
   willInsertElement: function () {
     if (!this.get('controller.showFilterConditionsFirstLoad')) {
-      var didClearedSomething = this.clearFilterConditionsFromLocalStorage();
-      this.set('controller.filterChangeHappened', didClearedSomething);
+      this.clearFilterCondition();
     }
     this._super();
     this.set('startIndex', this.get('controller.startIndex'));
     this.addObserver('pageContent.@each.selected', this, this.selectedHostsObserver);
   },
 
+  /**
+   * get query parameters computed in controller
+   * @param {bool} flag should non-filters params be skipped
+   * @return {Array}
+   */
+  getQueryParameters: function (flag) {
+    return this.get('controller').getQueryParameters(flag);
+  },
   /**
    * stub for filter function in TableView
    */
@@ -200,28 +224,32 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
     this.addObserver('controller.clearFilters', this, this.clearFiltersObs);
     this.clearFiltersObs();
     this.addObserver('selectAllHosts', this, this.toggleAllHosts);
+    this.set('controller.isCountersUpdating', true);
+    this.get('controller').updateStatusCounters();
     this.addObserver('filteringComplete', this, this.overlayObserver);
-    this.addObserver('startIndex', this, 'updatePagination');
-    this.addObserver('displayLength', this, 'updatePagination');
+    this.addObserver('displayLength', this, this.updatePaging);
     this.addObserver('filteredCount', this, this.updatePaging);
-  },
-
-  willDestroyElement: function () {
-    $('.tooltip').remove();
+    this.overlayObserver();
   },
 
   onInitialLoad: function () {
     if (this.get('tableFilteringComplete')) {
-      if (this.get('controller.filterChangeHappened')) {
-        this.refresh();
-      } else {
-        // no refresh but still need to enable pagination controls
-        this.propertyDidChange('filteringComplete');
-      }
+      this.refresh();
     }
-    // reset filter change marker
-    this.set('controller.filterChangeHappened', false);
   }.observes('tableFilteringComplete'),
+
+  /**
+   * synchronize properties of view with controller to generate query parameters
+   */
+  updateViewProperty: function () {
+    this.get('controller.viewProperties').findProperty('key', 'displayLength').set('viewValue', this.get('displayLength'));
+    this.get('controller.viewProperties').findProperty('key', 'startIndex').set('viewValue', this.get('startIndex'));
+    this.refresh();
+  }.observes('startIndex'),
+
+  willDestroyElement: function() {
+    this.set('controller.isCountersUpdating', false);
+  },
 
   /**
    * Set <code>selected</code> property for each App.Host
@@ -287,7 +315,7 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
    */
   overlayObserver: function() {
     var $tbody = this.$('tbody'),
-      $overlay = this.$('.table-overlay'),
+      $overlay = this.$('.hosts-overlay'),
       $spinner = $($overlay).find('.spinner');
     if (!this.get('filteringComplete')) {
       if (!$tbody) return;
@@ -350,15 +378,10 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
         }
         break;
       case 'f':
-        queryParams = this.get('controller').getQueryParameters(true).filter(function (obj) {
+        queryParams = this.getQueryParameters(true).filter(function (obj) {
           return !(obj.key == 'page_size' || obj.key == 'from');
         });
         break;
-    }
-
-    if (operationData.action === 'SET_RACK_INFO') {
-      this.getHostsForBulkOperations(queryParams, operationData, null);
-      return;
     }
 
     var loadingPopup = App.ModalPopup.show({
@@ -369,18 +392,13 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
         template: Ember.Handlebars.compile('<div class="spinner"></div>')
       })
     });
-
-    this.getHostsForBulkOperations(queryParams, operationData, loadingPopup);
-  },
-
-  getHostsForBulkOperations: function (queryParams, operationData, loadingPopup) {
-    var params = App.router.get('updateController').computeParameters(queryParams);
-
+    var parameters = App.router.get('updateController').computeParameters(queryParams);
+    if (!parameters.length) parameters = '&';
     App.ajax.send({
       name: 'hosts.bulk.operations',
       sender: this,
       data: {
-        parameters: params,
+        parameters: parameters.substring(0, parameters.length - 1),
         operationData: operationData,
         loadingPopup: loadingPopup
       },
@@ -396,6 +414,7 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
         id:host.id,
         clusterId: host.cluster_id,
         passiveState: host.passive_state,
+        isRequested: host.is_requested,
         hostName: host.host_name,
         hostComponents: host.host_components
       })
@@ -435,15 +454,6 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
       });
     }
     var hostNamesSkipped = hostsToSkip.mapProperty('hostName');
-    if (operationData.action === 'PASSIVE_STATE') {
-      hostNamesSkipped = [];
-      var outOfSyncHosts = App.StackVersion.find().findProperty('isCurrent').get('outOfSyncHosts');
-      for (var i = 0; i < outOfSyncHosts.length; i++) {
-        if (hostNames.contains(outOfSyncHosts[i])) {
-          hostNamesSkipped.push(outOfSyncHosts[i]);
-        }
-      }
-    }
     var message;
     if (operationData.componentNameFormatted) {
       message = Em.I18n.t('hosts.bulkOperation.confirmation.hostComponents').format(operationData.message, operationData.componentNameFormatted, hostNames.length);
@@ -451,16 +461,7 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
     else {
       message = Em.I18n.t('hosts.bulkOperation.confirmation.hosts').format(operationData.message, hostNames.length);
     }
-
-    if (param.loadingPopup) {
-      param.loadingPopup.hide();
-    }
-
-    if (operationData.action === 'SET_RACK_INFO') {
-      self.get('controller').bulkOperation(operationData, hosts);
-      return;
-    }
-
+    param.loadingPopup.hide();
     App.ModalPopup.show({
       header: Em.I18n.t('hosts.bulkOperation.confirmation.header'),
       hostNames: hostNames.join("\n"),
@@ -483,17 +484,7 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
       bodyClass: Em.View.extend({
         templateName: require('templates/main/host/bulk_operation_confirm_popup'),
         message: message,
-        warningInfo: function() {
-          switch (operationData.action) {
-            case "DECOMMISSION":
-              return Em.I18n.t('hosts.bulkOperation.warningInfo.body');
-            case "PASSIVE_STATE":
-              return operationData.state === 'OFF' ? Em.I18n.t('hosts.passiveMode.popup.version.mismatch.multiple')
-              .format(App.StackVersion.find().findProperty('isCurrent').get('repositoryVersion.repositoryVersion')) : "";
-            default:
-              return ""
-          }
-        }.property(),
+        warningInfo: Em.I18n.t('hosts.bulkOperation.warningInfo.body'),
         textareaVisible: false,
         textTrigger: function() {
           this.set('textareaVisible', !this.get('textareaVisible'));
@@ -520,7 +511,7 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
   sortView: sort.serverWrapperView,
   nameSort: sort.fieldView.extend({
     column: 1,
-    name:'hostName',
+    name:'publicHostName',
     displayName: Em.I18n.t('common.name')
   }),
   ipSort: sort.fieldView.extend({
@@ -528,12 +519,6 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
     name:'ip',
     displayName: Em.I18n.t('common.ipAddress'),
     type: 'ip'
-  }),
-  rackSort: sort.fieldView.extend({
-    column: 12,
-    name:'rack',
-    displayName: Em.I18n.t('common.rack'),
-    type: 'rack'
   }),
   cpuSort: sort.fieldView.extend({
     column: 3,
@@ -543,7 +528,7 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
   }),
   memorySort: sort.fieldView.extend({
     column: 4,
-    name:'memoryFormatted',
+    name:'memory',
     displayName: Em.I18n.t('common.ram'),
     type: 'number'
   }),
@@ -563,35 +548,12 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
     tagName: 'tr',
     didInsertElement: function(){
       App.tooltip(this.$("[rel='HealthTooltip'], [rel='UsageTooltip'], [rel='ComponentsTooltip']"));
+      this.set('isComponentsCollapsed', true);
     },
 
-    willDestroyElement: function() {
-      this.$("[rel='HealthTooltip'], [rel='UsageTooltip'], [rel='ComponentsTooltip']").remove();
-    },
-
-    displayComponents: function () {
-      if (this.get('hasNoComponents')) {
-        return;
-      }
-      var header = Em.I18n.t('common.components'),
-        hostName = this.get('content.hostName'),
-        items = this.get('content.hostComponents').getEach('displayName');
-      App.showHostsTableListPopup(header, hostName, items);
-    },
-
-    displayVersions: function () {
-      if (this.get('hasSingleVersion')) {
-        return;
-      }
-      var header = Em.I18n.t('common.versions'),
-        hostName = this.get('content.hostName'),
-        items = this.get('content.stackVersions').filterProperty('isVisible').map(function (stackVersion) {
-          return {
-            name: stackVersion.get('displayName'),
-            status: App.format.role(stackVersion.get('status'))
-          };
-        });
-      App.showHostsTableListPopup(header, hostName, items);
+    toggleComponents: function(event) {
+      this.set('isComponentsCollapsed', !this.get('isComponentsCollapsed'));
+      this.$('.host-components').toggle();
     },
 
     /**
@@ -599,56 +561,37 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
      * @returns {String}
      */
     restartRequiredComponentsMessage: function() {
-      var restartRequiredComponents = this.get('content.componentsWithStaleConfigs');
-      var count = this.get('content.componentsWithStaleConfigsCount');
+      var restartRequiredComponents = this.get('content.hostComponents').filterProperty('staleConfigs', true);
+      var count = restartRequiredComponents.length;
       if (count <= 5) {
         var word = (count == 1) ? Em.I18n.t('common.component') : Em.I18n.t('common.components');
         return Em.I18n.t('hosts.table.restartComponents.withNames').format(restartRequiredComponents.getEach('displayName').join(', ')) + ' ' + word.toLowerCase();
       }
       return Em.I18n.t('hosts.table.restartComponents.withoutNames').format(count);
-    }.property('content.componentsWithStaleConfigs'),
+    }.property('content.hostComponents.@each.staleConfigs'),
 
     /**
      * Tooltip message for "Maintenance" icon
      * @returns {String}
      */
     componentsInPassiveStateMessage: function() {
-      var componentsInPassiveState = this.get('content.componentsInPassiveState');
-      var count = this.get('content.componentsInPassiveStateCount');
+      var componentsInPassiveState = this.get('content.hostComponents').filter(function(component) {
+        return component.get('passiveState') !== 'OFF';
+      });
+      var count = componentsInPassiveState.length;
       if (count <= 5) {
         return Em.I18n.t('hosts.table.componentsInPassiveState.withNames').format(componentsInPassiveState.getEach('displayName').join(', '));
       }
       return Em.I18n.t('hosts.table.componentsInPassiveState.withoutNames').format(count);
-    }.property('content.componentsInPassiveState'),
+    }.property('content.hostComponents.@each.passiveState'),
 
     /**
-     * true if host has only one repoversion
-     * in this case expander in version column is hidden
-     * @returns {Boolean}
-     */
-    hasSingleVersion: function() {
-      return this.get('content.stackVersions').filterProperty('isVisible', true).length < 2;
-    }.property('content.stackVersions.length'),
-
-    /**
-     * true if host has no components
-     * @returns {Boolean}
-     */
-    hasNoComponents: function() {
-      return !this.get('content.hostComponents.length');
-    }.property('content.hostComponents.length'),
-
-    /**
-
-    /**
-     * this version is always shown others hidden unless expander is open
-     * host may have no stack versions
+     * String with list of host components <code>displayName</code>
      * @returns {String}
      */
-    currentVersion: function() {
-      var currentRepoVersion = this.get('content.stackVersions').findProperty('isCurrent') || this.get('content.stackVersions').objectAt(0);
-      return currentRepoVersion ? currentRepoVersion.get('displayName') : "";
-    }.property('content.stackVersions'),
+    labels: function() {
+      return this.get('content.hostComponents').getEach('displayName').join("<br />");
+    }.property('content.hostComponents.length'),
 
     /**
      * CSS value for disk usage bar
@@ -826,26 +769,11 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
       this.set('value', category.get('healthStatus'));
       this.get('parentView').resetFilterByColumns([0, 7, 8, 9]);
       if (category.get('isHealthStatus')) {
-        var status = category.get('healthStatus');
-        if (!status) {
-          // only "All" option has no specific status, just refresh
-          this.get('parentView').refresh();
-        } else {
-          this.get('parentView').updateFilter(0, status, 'string');
-        }
+        this.get('parentView').updateFilter(0, category.get('healthStatus'), 'string');
       } else {
         this.get('parentView').updateFilter(category.get('column'), category.get('filterValue'), category.get('type'));
       }
     },
-
-    /**
-     * set value
-     * @param {string} value
-     */
-    setValue: function (value) {
-      this.set('value', value);
-    },
-
     clearFilter: function() {
       this.get('categories').setEach('isActive', false);
       this.set('value', '');
@@ -878,18 +806,6 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
     }
   }),
 
-   /**
-   * Filter view for rack column
-   * Based on <code>filters</code> library
-   */
-  rackFilterView: filters.createTextView({
-    column: 12,
-    fieldType: 'filter-input-width rack-input',
-    onChangeValue: function(){
-      this.get('parentView').updateFilter(this.get('column'), this.get('value'), 'string');
-    }
-  }),
-
   /**
    * Filter view for Cpu column
    * Based on <code>filters</code> library
@@ -904,19 +820,6 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
   }),
 
   /**
-   * Filter view for Ram column
-   * Based on <code>filters</code> library
-   */
-  ramFilterView: filters.createTextView({
-    fieldType: 'filter-input-width',
-    fieldId: 'ram_filter',
-    column: 4,
-    onChangeValue: function () {
-      this.get('parentView').updateFilter(this.get('column'), this.get('value'), 'ambari-bandwidth');
-    }
-  }),
-
-  /**
    * Filter view for LoadAverage column
    * Based on <code>filters</code> library
    */
@@ -926,6 +829,19 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
     column: 5,
     onChangeValue: function(){
       this.get('parentView').updateFilter(this.get('column'), this.get('value'), 'number');
+    }
+  }),
+
+  /**
+   * Filter view for Ram column
+   * Based on <code>filters</code> library
+   */
+  ramFilterView: filters.createTextView({
+    fieldType: 'filter-input-width',
+    fieldId: 'ram_filter',
+    column: 4,
+    onChangeValue: function(){
+      this.get('parentView').updateFilter(this.get('column'), this.get('value'), 'ambari-bandwidth');
     }
   }),
 
@@ -944,35 +860,40 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
     filterView: filters.componentFieldView.extend({
       templateName: require('templates/main/host/component_filter'),
 
+
+      /**
+       * Components which will be shown in component filter
+       * @returns {Array}
+       */
+      componentsForFilter: function () {
+        var installedComponents = App.StackServiceComponent.find().toArray();
+        installedComponents.setEach('checkedForHostFilter', false);
+        return installedComponents;
+      }.property('App.router.clusterController.isLoaded'),
+
       /**
        * Master components
        * @returns {Array}
        */
       masterComponents: function () {
-        var components = App.MasterComponent.find().rejectProperty('totalCount', 0);
-        components.setEach('checkedForHostFilter', false);
-        return components;
-      }.property('App.router.clusterController.isComponentsStateLoaded'),
+        return this.get('componentsForFilter').filterProperty('isMaster', true);
+      }.property('componentsForFilter'),
 
       /**
        * Slave components
        * @returns {Array}
        */
       slaveComponents: function () {
-        var components = App.SlaveComponent.find().rejectProperty('totalCount', 0);
-        components.setEach('checkedForHostFilter', false);
-        return components;
-      }.property('App.router.clusterController.isComponentsStateLoaded'),
+        return this.get('componentsForFilter').filterProperty('isSlave', true);
+      }.property('componentsForFilter'),
 
       /**
        * Client components
        * @returns {Array}
        */
       clientComponents: function () {
-        var components = App.ClientComponent.find().rejectProperty('totalCount', 0);
-        components.setEach('checkedForHostFilter', false);
-        return components;
-      }.property('App.router.clusterController.isComponentsStateLoaded'),
+        return this.get('componentsForFilter').filterProperty('isClient', true);
+      }.property('componentsForFilter'),
 
       /**
        * Checkbox for quick selecting/deselecting of master components
@@ -1070,110 +991,6 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
     }
   }),
 
-  versionsFilterView: filters.wrapperView.extend({
-    column: 11,
-    filterView: filters.componentFieldView.extend({
-      templateName: require('templates/main/host/version_filter'),
-      selectedVersion: null,
-      selectedStatus: null,
-      value: [],
-
-      versionSelectView: filters.createSelectView({
-        classNames: ['notActive'],
-        fieldType: 'filter-input-width',
-        filterPropertyName: 'repository_versions/RepositoryVersions/display_name',
-        content: function () {
-          return  [
-            {
-              value: '',
-              label: Em.I18n.t('common.all')
-            }
-          ].concat(this.get('controller.allHostStackVersions').filterProperty('isVisible', true).mapProperty('displayName').uniq().map(function (version) {
-            return {
-              value: version,
-              label: version
-            }
-          }));
-        }.property('App.router.clusterController.isLoaded', 'controller.allHostStackVersions.length'),
-        onChangeValue: function () {
-          this.set('parentView.selectedVersion', this.get('value'));
-        }
-      }),
-      statusSelectView: filters.createSelectView({
-        classNames: ['notActive'],
-        fieldType: 'filter-input-width',
-        filterPropertyName: 'HostStackVersions/state',
-        content: function () {
-          return [
-            {
-              value: '',
-              label: Em.I18n.t('common.all')
-            }
-          ].concat(App.HostStackVersion.statusDefinition.map(function (status) {
-            return {
-              value: status,
-              label: App.HostStackVersion.formatStatus(status)
-            }
-          }));
-        }.property('App.router.clusterController.isLoaded'),
-        onChangeValue: function () {
-          this.set('parentView.selectedStatus', this.get('value'));
-        }
-      }),
-      /**
-       * Onclick handler for <code>Apply filter</code> button
-       */
-      applyFilter: function () {
-        this._super();
-        var self = this;
-        var filterProperties = [];
-        if (this.get('selectedVersion')) {
-          filterProperties.push({
-            property: 'repository_versions/RepositoryVersions/display_name',
-            value: this.get('selectedVersion')
-          });
-        }
-        if (this.get('selectedStatus')) {
-          filterProperties.push({
-            property: 'HostStackVersions/state',
-            value: this.get('selectedStatus')
-          });
-        }
-        self.set('value', filterProperties);
-      },
-      /**
-       * Clear filter to initial state
-       */
-      clearFilter: function () {
-        this.set('value', []);
-        this.get('childViews').forEach(function (view) {
-          if (typeof view.clearFilter === "function") view.clearFilter();
-        });
-      }
-    }),
-    setValue: function (value) {
-      var versionSelectView = this.get('childViews')[0];
-
-      //restore selected options in Select views
-      versionSelectView.get('childViews').forEach(function (view) {
-        var filter = value.findProperty('property', view.get('filterPropertyName'));
-        if (filter && view.get('content').findProperty('value', filter.value)) {
-          view.set('selected', view.get('content').findProperty('value', filter.value));
-        }
-      }, this);
-      this._super(value);
-    },
-    onChangeValue: function () {
-      this.get('parentView').updateFilter(this.get('column'), this.get('value'), 'sub-resource');
-    },
-    clearFilter: function () {
-      this._super();
-      this.get('childViews').forEach(function (view) {
-        if (typeof view.clearFilter === "function") view.clearFilter();
-      });
-    }
-  }),
-
   /**
    * associations between host property and column index
    * @type {Array}
@@ -1182,20 +999,9 @@ App.MainHostView = App.TableView.extend(App.TableServerViewMixin, {
     return this.get('controller.colPropAssoc');
   }.property('controller.colPropAssoc'),
 
-  /**
-   * Run <code>clearFilter</code> in the each child filterView
-   */
-  clearFilters: function() {
-    // clean filters stored in-memory and local storage
-    this.set('filterConditions', []);
-    this.clearFilterConditionsFromLocalStorage();
-    // clean UI
-    this.get('_childViews').forEach(function(childView) {
-      if (childView['clearFilter']) {
-        childView.clearFilter();
-      }
-    });
-    // force refresh
-    this.refresh();
-  }
+  resetStartIndex: function () {
+    if (this.get('controller.resetStartIndex') && this.get('filteredCount') > 0) {
+      this.set('startIndex', 1);
+    }
+  }.observes('controller.resetStartIndex')
 });

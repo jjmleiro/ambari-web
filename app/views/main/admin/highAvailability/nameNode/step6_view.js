@@ -28,14 +28,17 @@ App.HighAvailabilityWizardStep6View = Em.View.extend({
   },
 
   step6BodyText: function () {
-    var nN = this.get('controller.content.masterComponentHosts').filterProperty('component', 'NAMENODE').findProperty('isInstalled', true);
+    var nN = this.get('controller.content.masterComponentHosts').findProperty('isCurNameNode', true);
     return Em.I18n.t('admin.highAvailability.wizard.step6.body').format(this.get('controller.content.hdfsUser'), nN.hostName);
   }.property('controller.content.masterComponentHosts'),
 
   jnCheckPointText: function () {
-    return this.get('controller.isNextEnabled') ?
-      Em.I18n.t('admin.highAvailability.wizard.step6.jsInit') :
-      Em.I18n.t('admin.highAvailability.wizard.step6.jsNoInit');
+    var curStatus = this.get('controller.isNextEnabled');
+    if (curStatus) {
+      return Em.I18n.t('admin.highAvailability.wizard.step6.jsInit');
+    } else {
+      return Em.I18n.t('admin.highAvailability.wizard.step6.jsNoInit');
+    }
   }.property('controller.isNextEnabled')
 
 });

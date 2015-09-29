@@ -24,6 +24,8 @@ App.RMHighAvailabilityWizardStep4Controller = App.HighAvailabilityProgressPageCo
 
   name: "rMHighAvailabilityWizardStep4Controller",
 
+  isRMHA: true,
+
   clusterDeployState: 'RM_HIGH_AVAILABILITY_DEPLOY',
 
   commands: ['stopRequiredServices', 'installResourceManager', 'reconfigureYARN', 'startAllServices'],
@@ -31,7 +33,19 @@ App.RMHighAvailabilityWizardStep4Controller = App.HighAvailabilityProgressPageCo
   tasksMessagesPrefix: 'admin.rm_highAvailability.wizard.step',
 
   stopRequiredServices: function () {
-    this.stopServices(['HDFS']);
+    var list = App.Service.find().mapProperty("serviceName").without("HDFS").join(',');
+    App.ajax.send({
+      name: 'common.services.update',
+      sender: this,
+      data: {
+        "context": "Stop without HDFS",
+        "ServiceInfo": {
+          "state": "INSTALLED"
+        },
+        urlParams: "ServiceInfo/service_name.in(" + list + ")"},
+      success: 'startPolling',
+      error: 'onTaskError'
+    });
   },
 
   installResourceManager: function () {
@@ -70,7 +84,7 @@ App.RMHighAvailabilityWizardStep4Controller = App.HighAvailabilityProgressPageCo
       data.items[0].properties[property.name] = property.value;
     });
 
-    var configData = this.reconfigureSites(['yarn-site'], data, Em.I18n.t('admin.highAvailability.step4.save.configuration.note').format(App.format.role('RESOURCEMANAGER')));
+    var configData = this.reconfigureSites(['yarn-site'],data);
 
     App.ajax.send({
       name: 'common.service.configurations',
@@ -88,7 +102,19 @@ App.RMHighAvailabilityWizardStep4Controller = App.HighAvailabilityProgressPageCo
   },
 
   startAllServices: function () {
-    this.startServices(true);
+    App.ajax.send({
+      name: 'common.services.update',
+      sender: this,
+      data: {
+        "context": "Start all services",
+        "ServiceInfo": {
+          "state": "STARTED"
+        },
+        urlParams: "params/run_smoke_test=true"
+      },
+      success: 'startPolling',
+      error: 'onTaskError'
+    });
   }
 });
 

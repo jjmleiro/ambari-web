@@ -1,18 +1,11 @@
 {
+  "href" : "http://dev.hortonworks.com:8080/api/v1/users/admin",
   "Users" : {
-    "active" : true,
-    "admin" : true,
-    "groups" : [ ],
+    "user_name" : "admin",
     "ldap_user" : false,
-    "user_name" : "admin"
-  },
-  "privileges" : [
-    {
-      "PrivilegeInfo" : {
-        "permission_name" : "AMBARI.ADMIN",
-        "privilege_id" : 1,
-        "user_name" : "admin"
-      }
-    }
-  ]
+    "roles" : [
+      "admin",
+      "user"
+    ]
+  }
 }

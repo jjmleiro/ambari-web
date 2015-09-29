@@ -21,9 +21,6 @@ var App = require('app');
 App.MainAdminServiceAccountsView = Em.View.extend({
   templateName: require('templates/main/admin/serviceAccounts'),
   didInsertElement: function() {
-    var self = this;
-    App.router.get('mainController').isLoading.call(App.router.get('clusterController'), 'isConfigsPropertiesLoaded').done(function () {
-      self.get('controller').loadUsers();
-    });
+    this.get('controller').loadUsers();
   }
 });

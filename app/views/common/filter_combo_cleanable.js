@@ -38,10 +38,9 @@ App.FilterComboCleanableView = Ember.View.extend({
     this.clearFilter();
   },
 
-  /**
-   * @type {string}
-   */
-  placeHolder: Em.I18n.t('common.combobox.placeholder'),
+  placeHolder: function(){
+    return this.t('common.combobox.placeholder');
+  }.property(),
 
   /**
    * Onclick handler for dropdown menu
@@ -55,23 +54,6 @@ App.FilterComboCleanableView = Ember.View.extend({
   filterNotEmpty: function(target){
     return (this.get('filter').length > 0);
   }.property('filter'),
-
-  /**
-   * true if any of filter columns is selected
-   * in this case clear filter row should be shown
-   * @type {boolean}
-   */
-  showClearFilter: function() {
-    return this.get('columns').someProperty('selected');
-  }.property('columns.@each.selected'),
-
-  /**
-   * clears all filter columns.
-   * @method clearFilterColumn
-   */
-  clearFilterColumn: function() {
-    this.get('columns').setEach('selected', false);
-  },
 
   /**
    * clear Filter textfield

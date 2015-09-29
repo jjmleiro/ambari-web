@@ -39,7 +39,7 @@ module.exports = {
               value = transformValueFunction(value);
             }
             var hostName = hc.HostRoles.host_name;
-            hostToValueMap[hostName] = value.toFixed(1);
+            hostToValueMap[hostName] = value;
           }
         });
       }

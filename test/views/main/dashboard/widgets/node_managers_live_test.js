@@ -25,14 +25,6 @@ require('views/main/dashboard/widgets/node_managers_live');
 
 describe('App.NodeManagersLiveView', function() {
 
-  beforeEach(function () {
-    sinon.stub(App, 'get').withArgs('router.clusterController.isComponentsStateLoaded').returns(true);
-  });
-
-  afterEach(function () {
-    App.get.restore();
-  });
-
   var tests = [
     {
       model: {
@@ -79,7 +71,7 @@ describe('App.NodeManagersLiveView', function() {
   ];
 
   tests.forEach(function(test) {
-    describe('nodeManagersTotal length - ' + test.model.nodeManagersTotal + ' | nodeManagerLiveNodes length - ' + test.model.nodeManagerLiveNodes, function() {
+    describe('nodeManagerNodes length - ' + test.model.nodeManagersTotal + ' | nodeManagerLiveNodes length - ' + test.model.nodeManagerLiveNodes, function() {
       var AppNodeManagersLiveView = App.NodeManagersLiveView.extend({nodeManagersLive: test.model.nodeManagerLiveNodes});
       var nodeManagersLiveView = AppNodeManagersLiveView.create({model_type:null, model: test.model});
       it('content', function() {

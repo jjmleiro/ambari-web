@@ -29,59 +29,51 @@ App.componentConfigMapper = App.QuickDataMapper.create({
     $display_name_advanced: '',
     stale_configs: 'HostRoles.stale_configs',
     host_id: 'HostRoles.host_name',
-    service_id: 'HostRoles.service_name',
-    admin_state: 'HostRoles.desired_admin_state'
+    service_id: 'HostRoles.service_name'
   },
   map: function (json) {
     console.time('App.componentConfigMapper execution time');
     var hostComponents = [];
-    var newHostComponentsMap = {};
+    var serviceToHostComponentIdMap = {};
     var cacheServices = App.cache['services'];
-    var currentServiceComponentsMap = this.buildServiceComponentMap(cacheServices);
+    var loadedServiceComponentsMap = this.buildServiceComponentMap(cacheServices);
     var mapConfig = this.get('config');
     // We do not want to parse JSON if there is no need to
     var hostComponentJsonMap = {};
     var hostComponentJsonIds = [];
-
-    if (json.items.length > 0 || this.get('model').find().someProperty('staleConfigs', true)) {
-      json.items.forEach(function (item) {
-        item.host_components.forEach(function (host_component) {
-          host_component.id = host_component.HostRoles.component_name + '_' + host_component.HostRoles.host_name;
-          hostComponentJsonIds.push(host_component.id);
-          hostComponentJsonMap[host_component.id] = host_component;
-        });
+    var hostComponentJsonsToRemove = {};
+    json.items.forEach(function (item) {
+      item.host_components.forEach(function (host_component) {
+        host_component.id = host_component.HostRoles.component_name + '_' + host_component.HostRoles.host_name;
+        hostComponentJsonIds.push(host_component.id);
+        hostComponentJsonMap[host_component.id] = host_component;
       });
-      this.get('model').find().forEach(function (hostComponent) {
-        var id = hostComponent.get('id');
-        var hostComponentJson = hostComponentJsonMap[id];
-        var currentStaleConfigsState = Boolean(hostComponentJson);
-        var stateChanged = hostComponent.get('staleConfigs') !== currentStaleConfigsState;
-
-        if (stateChanged) {
-          hostComponent.set('staleConfigs', currentStaleConfigsState);
-        }
-        //delete loaded host-components, so only new ones left
-        delete hostComponentJsonMap[id];
-      });
-      hostComponentJsonIds.forEach(function (hcId) {
-        var newHostComponent = hostComponentJsonMap[hcId];
-        if (newHostComponent) {
-          var serviceName = newHostComponent.HostRoles.service_name;
-          hostComponents.push(this.parseIt(newHostComponent, mapConfig));
-          if (!newHostComponentsMap[serviceName]) {
-            newHostComponentsMap[serviceName] = [];
-          }
-          if (currentServiceComponentsMap[serviceName] && !currentServiceComponentsMap[serviceName][newHostComponent.id]) {
-            newHostComponentsMap[serviceName].push(newHostComponent.id);
-          }
-        }
-      }, this);
-      if (hostComponents.length > 0) {
-        App.store.commit();
-        App.store.loadMany(this.get('model'), hostComponents);
-        this.addNewHostComponents(newHostComponentsMap, cacheServices);
+    });
+    this.get('model').find().forEach(function (hostComponent) {
+      var hostComponentJson = hostComponentJsonMap[hostComponent.get('id')];
+      if (!hostComponentJson && !hostComponent.get('isMaster')) {
+        hostComponent.set('staleConfigs', false);
       }
-    }
+      if (hostComponentJson!=null && hostComponent.get('staleConfigs') &&
+          hostComponentJson.HostRoles.state == hostComponent.get('workStatus') &&
+          hostComponentJson.HostRoles.maintenance_state == hostComponent.get('passiveState')) {
+        // A component already exists with correct stale_configs flag and other values - no need to load again
+        hostComponentJsonsToRemove[hostComponentJson.id] = hostComponentJson;
+      }
+    });
+    hostComponentJsonIds.forEach(function (hcId) {
+      if(!hostComponentJsonsToRemove[hcId]){
+        var host_component = hostComponentJsonMap[hcId];
+        var serviceName = host_component.HostRoles.service_name;
+        hostComponents.push(this.parseIt(host_component, mapConfig));
+        if (!serviceToHostComponentIdMap[serviceName]) {
+          serviceToHostComponentIdMap[serviceName] = [];
+        }
+        serviceToHostComponentIdMap[serviceName].push(host_component.id);
+      }
+    }, this);
+    App.store.loadMany(this.get('model'), hostComponents);
+    this.addNewHostComponents(loadedServiceComponentsMap, serviceToHostComponentIdMap, cacheServices);
     console.timeEnd('App.componentConfigMapper execution time');
   },
 
@@ -107,19 +99,25 @@ App.componentConfigMapper = App.QuickDataMapper.create({
   /**
    * add only new host-components to every service
    * to update service - host-component relations in model
-   * @param {object} newHostComponentsMap
-   * @param {Array} cacheServices
+   * @param loadedServiceComponentsMap
+   * @param serviceToHostComponentIdMap
+   * @param cacheServices
    * @return {boolean}
    */
-  addNewHostComponents: function (newHostComponentsMap, cacheServices) {
-    if (!newHostComponentsMap || !cacheServices) return false;
-    cacheServices.forEach(function (service) {
-      if (newHostComponentsMap[service.ServiceInfo.service_name]) {
-        newHostComponentsMap[service.ServiceInfo.service_name].forEach(function (componentId) {
-          service.host_components.push(componentId)
+  addNewHostComponents: function (loadedServiceComponentsMap, serviceToHostComponentIdMap, cacheServices) {
+    if (!loadedServiceComponentsMap || !serviceToHostComponentIdMap || !cacheServices) return false;
+
+    for (var serviceName in serviceToHostComponentIdMap) {
+      var loadedService = cacheServices.findProperty('ServiceInfo.service_name', serviceName);
+
+      if (serviceToHostComponentIdMap[serviceName] && loadedService) {
+        serviceToHostComponentIdMap[serviceName].forEach(function (componentId) {
+          if (!loadedServiceComponentsMap[serviceName][componentId]) {
+            loadedService.host_components.push(componentId)
+          }
         });
       }
-    }, this);
+    }
     return true;
   }
 });

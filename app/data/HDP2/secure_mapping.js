@@ -543,12 +543,28 @@ var props = [
   },
   {
     "name": "templeton.hive.properties",
-    "templateName": ["hive_metastore","hive_metastore_principal_name","kerberos_domain"],
+    "templateName": ["hivemetastore_host","hive_metastore_principal_name","kerberos_domain"],
     "foreignKey": null,
-    "value": "hive.metastore.local=false,hive.metastore.uris=<templateName[0]>,hive." +
+    "value": "hive.metastore.local=false,hive.metastore.uris=thrift://<templateName[0]>:9083,hive." +
       "metastore.sasl.enabled=true,hive.metastore.execute.setugi=true,hive.metastore.warehouse.dir=/apps/hive/warehouse,hive.exec.mode.local.auto=false,hive.metastore.kerberos.principal=<templateName[1]>@<templateName[2]>",
     "filename": "webhcat-site.xml",
     "serviceName": "HIVE"
+  },
+  {
+    "name": "hbase.coprocessor.master.classes",
+    "templateName": [],
+    "foreignKey": null,
+    "value": "org.apache.hadoop.hbase.security.access.AccessController",
+    "filename": "hbase-site.xml",
+    "serviceName": "HBASE"
+  },
+  {
+    "name": "hbase.coprocessor.region.classes",
+    "templateName": [],
+    "foreignKey": null,
+    "value": "org.apache.hadoop.hbase.security.token.TokenProvider,org.apache.hadoop.hbase.security.access.SecureBulkLoadEndpoint,org.apache.hadoop.hbase.security.access.AccessController",
+    "filename": "hbase-site.xml",
+    "serviceName": "HBASE"
   },
   {
     "name": "hbase.security.authentication",
@@ -565,6 +581,14 @@ var props = [
     "foreignKey": null,
     "value": "true",
     "nonSecureValue": "false",
+    "filename": "hbase-site.xml",
+    "serviceName": "HBASE"
+  },
+  {
+    "name": "hbase.coprocessor.region.classes",
+    "templateName": [],
+    "foreignKey": null,
+    "value": "org.apache.hadoop.hbase.security.token.TokenProvider,org.apache.hadoop.hbase.security.access.SecureBulkLoadEndpoint,org.apache.hadoop.hbase.security.access.AccessController",
     "filename": "hbase-site.xml",
     "serviceName": "HBASE"
   },
@@ -723,7 +747,7 @@ var props = [
   },
   {
     "name": "hadoop.proxyuser.<foreignKey[0]>.hosts",
-    "templateName": ["hive_metastore"],
+    "templateName": ["hivemetastore_host"],
     "foreignKey": ["hive_metastore_primary_name"],
     "value": "<templateName[0]>",
     "filename": "core-site.xml",

@@ -32,9 +32,9 @@ App.DataNodeUpView = App.TextDashboardWidgetView.extend({
     var result = [];
     result.pushObject(this.get('dataNodesLive') + ' ' + Em.I18n.t('dashboard.services.hdfs.nodes.live'));
     result.pushObject(this.get('dataNodesDead') + ' ' + Em.I18n.t('dashboard.services.hdfs.nodes.dead'));
-    result.pushObject(this.get('dataNodesDecom')+ ' ' + Em.I18n.t('dashboard.services.hdfs.nodes.decom'));
+    result.pushObject(this.get('model.decommissionDataNodes.length')+ ' ' + Em.I18n.t('dashboard.services.hdfs.nodes.decom'));
     return result;
-  }.property('dataNodesLive', 'dataNodesDead', 'dataNodesDecom'),
+  }.property('dataNodesLive', 'dataNodesDead', 'model.decommissionDataNodes.length'),
   hiddenInfoClass: "hidden-info-three-line",
 
   thresh1: 40,
@@ -42,41 +42,22 @@ App.DataNodeUpView = App.TextDashboardWidgetView.extend({
   maxValue: 100,
 
   dataNodesLive: function () {
-    if (!Em.isNone(this.get('model.liveDataNodes')) && !this.get('model.metricsNotAvailable')) {
-      return this.get('model.liveDataNodes.length');
-    } else {
-      return   Em.I18n.t('services.service.summary.notAvailable');
-    }
-  }.property('model.liveDataNodes.length'),
+    return this.get('model.dataNodesStarted');
+  }.property('model.dataNodesStarted'),
   dataNodesDead: function () {
-    if (!Em.isNone(this.get('model.deadDataNodes')) && !this.get('model.metricsNotAvailable')) {
-      return this.get('model.deadDataNodes.length');
-    } else {
-      return   Em.I18n.t('services.service.summary.notAvailable');
-    }
-  }.property('model.deadDataNodes.length'),
-  dataNodesDecom: function () {
-    if (!Em.isNone(this.get('model.decommissionDataNodes')) && !this.get('model.metricsNotAvailable')) {
-      return this.get('model.decommissionDataNodes.length');
-    } else {
-      return   Em.I18n.t('services.service.summary.notAvailable');
-    }
-  }.property('model.decommissionDataNodes.length'),
+    return this.get('model.dataNodesInstalled');
+  }.property('model.dataNodesInstalled'),
 
   data: function () {
-    if (Em.isNone(this.get('model.liveDataNodes')) || Em.isNone(this.get('model.dataNodesTotal')) || this.get('model.metricsNotAvailable')) {
-      return null;
+    if ( !this.get('model.dataNodesTotal')) {
+      return -1;
     } else {
       return ((this.get('dataNodesLive') / this.get('model.dataNodesTotal')).toFixed(2)) * 100;
     }
   }.property('model.dataNodesTotal', 'dataNodesLive'),
 
   content: function () {
-    if (Em.isNone(this.get('model.liveDataNodes')) || Em.isNone(this.get('model.dataNodesTotal')) || this.get('model.metricsNotAvailable')) {
-      return  Em.I18n.t('services.service.summary.notAvailable');
-    } else {
-      return this.get('dataNodesLive') + "/" + this.get('model.dataNodesTotal');
-    }
+    return this.get('dataNodesLive') + "/" + this.get('model.dataNodesTotal');
   }.property('model.dataNodesTotal', 'dataNodesLive'),
 
   editWidget: function (event) {
@@ -159,7 +140,7 @@ App.DataNodeUpView = App.TextDashboardWidgetView.extend({
 
       didInsertElement: function () {
         var handlers = [configObj.get('thresh1'), configObj.get('thresh2')];
-        var colors = [App.healthStatusRed, App.healthStatusOrange, App.healthStatusGreen]; //color red, orange, green
+        var colors = ['#B80000', '#FF8E00', '#95A800']; //color red, orange, green
 
         if (browserVerion == -1 || browserVerion > 9) {
           configObj.set('isIE9', false);

@@ -95,6 +95,43 @@ describe('utils/blueprint', function() {
     }
   };
 
+  describe('#getHostsFromBlueprint', function() {
+    it('should extract all hosts from blueprint', function() {
+      expect(blueprintUtils.getHostsFromBlueprint(masterBlueprint)).to.deep.equal(["host1", "host2", "host3"]);
+    });
+  });
+
+  describe('#getHostsFromBlueprintByGroupName', function() {
+    it('should extract hosts from blueprint by given group name', function() {
+      expect(blueprintUtils.getHostsFromBlueprintByGroupName(masterBlueprint, "host-group-1")).to.deep.equal([
+        { fqdn: "host1" },
+        { fqdn: "host2" }
+      ]);
+    });
+
+    it('should return empty array if group with given name doesn\'t exist', function() {
+      expect(blueprintUtils.getHostsFromBlueprintByGroupName(masterBlueprint, "not an existing group")).to.deep.equal([]);
+    });
+  });
+
+  describe('#getComponentsFromBlueprintByGroupName', function() {
+    it('should extract all components from blueprint for given host', function() {
+      expect(blueprintUtils.getComponentsFromBlueprintByGroupName(masterBlueprint, "host-group-1")).to.deep.equal([
+        { name: "ZOOKEEPER_SERVER" },
+        { name: "NAMENODE" },
+        { name: "HBASE_MASTER" }
+      ]);
+    });
+
+    it('should return empty array if group doesn\'t exists', function() {
+      expect(blueprintUtils.getComponentsFromBlueprintByGroupName(masterBlueprint, "not an existing group")).to.deep.equal([]);
+    });
+
+    it('should return empty array if group name isn\'t valid', function() {
+      expect(blueprintUtils.getComponentsFromBlueprintByGroupName(masterBlueprint, undefined)).to.deep.equal([]);
+    });
+  });
+
   describe('#matchGroups', function() {
     it('should compose same host group into pairs', function() {
       expect(blueprintUtils.matchGroups(masterBlueprint, slaveBlueprint)).to.deep.equal([
@@ -240,7 +277,7 @@ describe('utils/blueprint', function() {
     });
   });
 
-  describe('#buildConfigsJSON', function () {
+  describe('#buildConfisJSON', function () {
     var tests = [
       {
         "services": [
@@ -292,22 +329,12 @@ describe('utils/blueprint', function() {
     ];
     tests.forEach(function (test) {
       it("generate configs for request (use in validation)", function () {
-        expect(blueprintUtils.buildConfigsJSON(test.services, test.stepConfigs)).to.eql(test.configurations);
+        expect(blueprintUtils.buildConfisJSON(test.services, test.stepConfigs)).to.eql(test.configurations);
       });
     });
   });
 
-  describe('#generateHostGroups()', function () {
-    beforeEach(function() {
-      sinon.stub(blueprintUtils, 'getComponentForHosts').returns({
-        "host1": ["C1", "C2"],
-        "host2": ["C1", "C3"]
-      });
-    });
-    afterEach(function() {
-      blueprintUtils.getComponentForHosts.restore();
-    });
-
+  describe('#generateHostGroups', function () {
     var tests = [
       {
         "hostNames": ["host1", "host2"],
@@ -381,53 +408,7 @@ describe('utils/blueprint', function() {
     ];
     tests.forEach(function (test) {
       it("generate host groups", function () {
-        expect(blueprintUtils.generateHostGroups(test.hostNames)).to.eql(test.result);
-      });
-    });
-  });
-
-  describe("#getComponentForHosts()", function() {
-
-    beforeEach(function() {
-      sinon.stub(App.ClientComponent, 'find').returns([
-        Em.Object.create({
-          componentName: "C1",
-          hostNames: ["host1", "host2"]
-        })
-      ]);
-      sinon.stub(App.SlaveComponent, 'find').returns([
-        Em.Object.create({
-          componentName: "C2",
-          hostNames: ["host2", "host3"]
-        })
-      ]);
-      sinon.stub(App.HostComponent, 'find').returns([
-        Em.Object.create({
-          componentName: "C3",
-          hostName: "host3",
-          isMaster: true
-        })
-      ]);
-    });
-    afterEach(function() {
-      App.ClientComponent.find.restore();
-      App.SlaveComponent.find.restore();
-      App.HostComponent.find.restore();
-    });
-
-    it("", function() {
-      expect(blueprintUtils.getComponentForHosts()).to.eql({
-        "host1": [
-          "C1"
-        ],
-        "host2": [
-          "C1",
-          "C2"
-        ],
-        "host3": [
-          "C2",
-          "C3"
-        ]
+        expect(blueprintUtils.generateHostGroups(test.hostNames, test.hostComponents)).to.eql(test.result);
       });
     });
   });

@@ -22,106 +22,28 @@ App.MainServiceManageConfigGroupView = Em.View.extend({
 
   templateName: require('templates/main/service/manage_configuration_groups_popup'),
 
-  /**
-   * Select Config Group
-   * @type {App.ConfigGroup}
-   */
   selectedConfigGroup: null,
 
-  /**
-   * Determines if "Delete Config Group" button is disabled
-   * @type {boolean}
-   */
   isRemoveButtonDisabled: true,
 
-  /**
-   * Determines if "Rename Config Group" button is disabled
-   * @type {boolean}
-   */
   isRenameButtonDisabled: true,
 
-  /**
-   * Determines if "Duplicate Config Group" button is disabled
-   * @type {boolean}
-   */
   isDuplicateButtonDisabled: true,
 
-  /**
-   * Tooltip for "Add Config Group" button
-   * @type {string}
-   */
-  addButtonTooltip: Em.I18n.t('services.service.config_groups_popup.addButton'),
-
-  /**
-   * Tooltip for "Remove Config Group" button
-   * @type {string}
-   */
-  removeButtonTooltip: Em.I18n.t('services.service.config_groups_popup.removeButton'),
-
-  /**
-   * Tooltip for "Rename Config Group" button
-   * @type {string}
-   */
-  renameButtonTooltip: Em.I18n.t('services.service.config_groups_popup.renameButton'),
-
-  /**
-   * Tooltip for "Duplicate Config Group" button
-   * @type {string}
-   */
-  duplicateButtonTooltip: Em.I18n.t('services.service.config_groups_popup.duplicateButton'),
-
-  /**
-   * Tooltip for "Remove Host From Config Group" button
-   * @type {string}
-   */
-  removeHostTooltip: Em.I18n.t('services.service.config_groups_popup.removeHost'),
-
-  /**
-   * Tooltip for "Add Host To Config Group" button
-   * @type {string}
-   */
-  addHostTooltip: function () {
-    var selectedConfigGroup = this.get('controller.selectedConfigGroup');
-    if (!selectedConfigGroup.get('isDefault') && selectedConfigGroup.get('isAddHostsDisabled')) {
-      return Em.I18n.t('services.service.config_groups_popup.addHostDisabled');
-    } else {
-      return  Em.I18n.t('services.service.config_groups_popup.addHost');
-    }
-  }.property('controller.selectedConfigGroup.isDefault', 'controller.selectedConfigGroup.isAddHostsDisabled'),
-
-  willInsertElement: function() {
-    this.get('controller').loadHosts();
-  },
-
-  didInsertElement: function () {
-    this.selectDefaultGroup();
-    App.tooltip($('.properties-link'));
-    App.tooltip($("[rel='button-info']"));
-    App.tooltip($("[rel='button-info-dropdown']"), {placement: 'left'});
-  },
-
-  willDestroyElement: function () {
-    this.get('controller.configGroups').clear();
-    this.get('controller.originalConfigGroups').clear();
-  },
-
-  /**
-   * Disable actions remove and rename for Default config group
-   * @method buttonObserver
-   */
+  //Disable actions remove and rename for Default config group
   buttonObserver: function () {
     var selectedConfigGroup = this.get('controller.selectedConfigGroup');
-    this.set('isRemoveButtonDisabled', selectedConfigGroup.get('isDefault'));
-    this.set('isRenameButtonDisabled', selectedConfigGroup.get('isDefault'));
-    this.set('isDuplicateButtonDisabled', false);
+    if(selectedConfigGroup.isDefault){
+      this.set('isRemoveButtonDisabled', true);
+      this.set('isRenameButtonDisabled', true);
+      this.set('isDuplicateButtonDisabled', false);
+    }else{
+      this.set('isRemoveButtonDisabled', false);
+      this.set('isRenameButtonDisabled', false);
+      this.set('isDuplicateButtonDisabled', false);
+    }
   }.observes('controller.selectedConfigGroup'),
 
-  /**
-   * Prevent user to select more than 1 config group
-   * Select last one of "selected"
-   * Clean up <code>controller.selectedHosts</code>
-   * @method onGroupSelect
-   */
   onGroupSelect: function () {
     var selectedConfigGroup = this.get('selectedConfigGroup');
     // to unable user select more than one config group at a time
@@ -134,14 +56,50 @@ App.MainServiceManageConfigGroupView = Em.View.extend({
     this.set('controller.selectedHosts', []);
   }.observes('selectedConfigGroup'),
 
-  /**
-   * Select default config group after all config groups are loaded
-   * @method selectDefaultGroup
-   */
+  onLoad: function () {
+    if (this.get('controller.isLoaded')) {
+      this.set('selectedConfigGroup', this.get('controller.configGroups')[0])
+    }
+  }.observes('controller.isLoaded', 'controller.configGroups'),
+
+  willInsertElement: function() {
+    this.get('controller').loadHosts();
+  },
+
+  didInsertElement: function () {
+    this.selectDefaultGroup();
+    App.tooltip($('.properties-link'));
+    App.tooltip($("[rel='button-info']"));
+    App.tooltip($("[rel='button-info-dropdown']"), {placement: 'left'});
+  },
+
   selectDefaultGroup: function () {
     if (this.get('controller.isLoaded')) {
       this.set('selectedConfigGroup', [this.get('controller.configGroups').findProperty('isDefault')]);
     }
-  }.observes('controller.isLoaded', 'controller.groupDeleteTrigger')
+  }.observes('controller.isLoaded'),
+
+  addButtonTooltip: function () {
+    return  Em.I18n.t('services.service.config_groups_popup.addButton');
+  }.property(),
+  removeButtonTooltip: function () {
+    return  Em.I18n.t('services.service.config_groups_popup.removeButton');
+  }.property(),
+  renameButtonTooltip: function () {
+    return  Em.I18n.t('services.service.config_groups_popup.renameButton');
+  }.property(),
+  duplicateButtonTooltip: function () {
+    return  Em.I18n.t('services.service.config_groups_popup.duplicateButton');
+  }.property(),
+  addHostTooltip: function () {
+    if (!this.get('controller.selectedConfigGroup.isDefault') && this.get('controller.selectedConfigGroup.isAddHostsDisabled')) {
+      return Em.I18n.t('services.service.config_groups_popup.addHostDisabled');
+    } else {
+      return  Em.I18n.t('services.service.config_groups_popup.addHost');
+    }
+  }.property('controller.selectedConfigGroup.isDefault', 'controller.selectedConfigGroup.isAddHostsDisabled'),
+  removeHostTooltip: function () {
+    return  Em.I18n.t('services.service.config_groups_popup.removeHost');
+  }.property()
 
 });

@@ -18,7 +18,7 @@
         "stderr": "",
         "stdout": "",
         "structured_out": {
-          "last_agent_env_check": {
+          "host_resolution_check": {
             "failures": [
               {
                 "type": "FORWARD_LOOKUP",
@@ -57,7 +57,7 @@
         "stderr": "",
         "stdout": "",
         "structured_out": {
-          "last_agent_env_check": {
+          "host_resolution_check": {
             "failed_count": "0",
             "failures": [],
             "success_count": "5"

@@ -21,11 +21,6 @@ var App = require('app');
 
 App.MainChartsHeatmapHostView = Em.View.extend({
   templateName: require('templates/main/charts/heatmap/heatmap_host'),
-
-  didInsertElement: function() {
-    $("#heatmapDetailsBlock").hide();
-  },
-
   /** @private */
   hostClass: 'hostBlock',
 

@@ -21,7 +21,7 @@ var App = require('app');
 App.SuperVisorUpView = App.TextDashboardWidgetView.extend({
 
   title: Em.I18n.t('dashboard.widgets.SuperVisorUp'),
-  id: '21',
+  id: '28',
 
   isPieChart: false,
   isText: true,
@@ -53,7 +53,7 @@ App.SuperVisorUpView = App.TextDashboardWidgetView.extend({
   }.property('model.superVisorsTotal'),
 
   data: function () {
-    if ( !this.get('superVisorsTotal') || Em.isNone(this.get('superVisorsLive'))) {
+    if ( !this.get('superVisorsTotal')) {
       return -1;
     } else {
       return ((this.get('superVisorsLive') / this.get('superVisorsTotal')).toFixed(2)) * 100;
@@ -61,11 +61,7 @@ App.SuperVisorUpView = App.TextDashboardWidgetView.extend({
   }.property('superVisorsTotal', 'superVisorsLive'),
 
   content: function () {
-    if (!Em.isNone(this.get('superVisorsTotal')) && !Em.isNone(this.get('superVisorsLive'))) {
-      return this.get('superVisorsLive') + "/" + this.get('superVisorsTotal');
-    } else {
-      return Em.I18n.t('services.service.summary.notAvailable');
-    }
+    return this.get('superVisorsLive') + "/" + this.get('superVisorsTotal');
   }.property('superVisorsLive', 'superVisorsTotal'),
 
   editWidget: function (event) {
@@ -148,7 +144,7 @@ App.SuperVisorUpView = App.TextDashboardWidgetView.extend({
 
       didInsertElement: function () {
         var handlers = [configObj.get('thresh1'), configObj.get('thresh2')];
-        var colors = [App.healthStatusRed, App.healthStatusOrange, App.healthStatusGreen]; //color red, orange, green
+        var colors = ['#B80000', '#FF8E00', '#95A800']; //color red, orange, green
 
         if (browserVerion == -1 || browserVerion > 9) {
           configObj.set('isIE9', false);

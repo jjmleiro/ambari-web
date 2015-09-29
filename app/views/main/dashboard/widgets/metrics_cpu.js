@@ -21,7 +21,7 @@ var App = require('app');
 App.ChartClusterMetricsCPUWidgetView = App.ClusterMetricsDashboardWidgetView.extend({
 
   title: Em.I18n.t('dashboard.clusterMetrics.cpu'),
-  id: '8',
+  id: '13',
 
   content: App.ChartClusterMetricsCPU.extend({
     noTitleUnderGraph: true,

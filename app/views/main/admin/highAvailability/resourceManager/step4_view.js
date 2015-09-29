@@ -29,8 +29,6 @@ App.RMHighAvailabilityWizardStep4View = App.HighAvailabilityProgressPageView.ext
 
   noticeCompleted: Em.I18n.t('admin.rm_highAvailability.wizard.step4.notice.completed'),
 
-  submitButtonText: Em.I18n.t('common.complete'),
-
-  labelWidth: 'span5'
+  submitButtonText: Em.I18n.t('common.complete')
 
 });

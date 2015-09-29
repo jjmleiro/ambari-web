@@ -26,13 +26,16 @@ App.HighAvailabilityWizardStep3View = Em.View.extend({
     this.get('controller').loadStep();
   },
   curNameNode: function () {
-    return this.get('controller.content.masterComponentHosts').filterProperty('component', 'NAMENODE').findProperty('isInstalled', true).hostName;
+    var nN = this.get('controller.content.masterComponentHosts').findProperty('isCurNameNode', true);
+    return nN.hostName;
   }.property('controller.content.masterComponentHosts'),
   addNameNode: function () {
-    return this.get('controller.content.masterComponentHosts').filterProperty('component', 'NAMENODE').findProperty('isInstalled', false).hostName;
+    var addNN = this.get('controller.content.masterComponentHosts').findProperty('isAddNameNode', true);
+    return addNN.hostName;
   }.property('controller.content.masterComponentHosts'),
   secondaryNameNode: function () {
-    return this.get('controller.content.masterComponentHosts').findProperty('component', "SECONDARY_NAMENODE").hostName;
+    var sn = this.get('controller.content.masterComponentHosts').findProperty('component', "SECONDARY_NAMENODE");
+    return sn.hostName;
   }.property('controller.content.masterComponentHosts'),
   journalNodes: function () {
     return this.get('controller.content.masterComponentHosts').filterProperty('component', "JOURNALNODE");

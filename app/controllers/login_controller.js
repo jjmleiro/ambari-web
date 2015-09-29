@@ -27,11 +27,11 @@ App.LoginController = Em.Object.extend({
 
   errorMessage: '',
 
-  isSubmitDisabled: false,
-
   submit: function (e) {
     this.set('errorMessage', '');
-    this.set('isSubmitDisabled', true);
+
+    var self = this;
+
     App.get('router').login();
   },
 
@@ -49,7 +49,6 @@ App.LoginController = Em.Object.extend({
       }
       this.set('errorMessage', errorMessage);
     }
-    this.set('isSubmitDisabled', false);
   }
 
 });

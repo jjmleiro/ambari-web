@@ -71,6 +71,10 @@ var service,
       configurable: true
     },
     {
+      name: 'MAPREDUCE',
+      configurable: true
+    },
+    {
       name: 'MAPREDUCE2',
       configurable: true
     },
@@ -108,6 +112,10 @@ var service,
       configurable: true
     },
     {
+      name: 'NAGIOS',
+      configurable: true
+    },
+    {
       name: 'ZOOKEEPER',
       configurable: true
     },
@@ -136,9 +144,7 @@ var service,
     ],
     [
       {
-        service: {
-          serviceName: 'HIVE'
-        },
+        serviceName: 'HIVE',
         staleConfigs: false
       }
     ]
@@ -146,9 +152,6 @@ var service,
   hostComponentsDataTrue = [
     [
       Em.Object.create({
-        service: {
-          serviceName: 'HDFS'
-        },
         staleConfigs: true,
         displayName: 'service0'
       })
@@ -157,9 +160,6 @@ var service,
       Em.Object.create({
         host: {
           publicHostName: 'host0'
-        },
-        service: {
-          serviceName: 'HDFS'
         },
         staleConfigs: true,
         displayName: 'service1'
@@ -218,22 +218,19 @@ describe('App.Service', function () {
   });
 
   describe('#isRestartRequired', function () {
-
-    beforeEach(function () {
-      service.reopen({
-        serviceName: 'HDFS',
-        hostComponents: []
-      });
-    });
     hostComponentsDataFalse.forEach(function (item) {
       it('should be false', function () {
-        service.set('hostComponents', item);
+        service.reopen({
+          hostComponents: item
+        });
         expect(service.get('isRestartRequired')).to.be.false;
       });
     });
     hostComponentsDataTrue.forEach(function (item) {
       it('should be true', function () {
-        service.set('hostComponents', item);
+        service.reopen({
+          hostComponents: item
+        });
         expect(service.get('isRestartRequired')).to.be.true;
       });
     });
@@ -256,6 +253,10 @@ describe('App.Service', function () {
       },
       {
         serviceName: 'GANGLIA',
+        result: ['MONITORING']
+      },
+      {
+        serviceName: 'NAGIOS',
         result: ['MONITORING']
       },
       {

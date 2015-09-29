@@ -20,84 +20,38 @@ var App = require('app');
 var batchUtils = require('utils/batch_scheduled_requests');
 
 App.MainServiceInfoConfigsView = Em.View.extend({
-
   templateName: require('templates/main/service/info/configs'),
-
   didInsertElement: function () {
-    var self = this;
-    App.router.get('mainController').isLoading.call(App.router.get('clusterController'), 'isConfigsPropertiesLoaded').done(function () {
-      self.get('controller').loadStep();
-    });
+    var controller = this.get('controller');
+    controller.loadStep();
   },
 
-  willDestroyElement: function() {
-    this.get('controller').clearStep();
-  },
-
-  /**
-   * Number of components that should be restarted
-   * @type {number}
-   */
   componentsCount: null,
-
-  /**
-   * Number of hosts with components that should be restarted
-   * @type {number}
-   */
   hostsCount: null,
+  isStopCommand:true,
 
-  /**
-   * @type {boolean}
-   */
-  isStopCommand: true,
-
-  /**
-   * @method updateComponentInformation
-   */
   updateComponentInformation: function() {
     var hc = this.get('controller.content.restartRequiredHostsAndComponents');
+    var hostsCount = 0;
     var componentsCount = 0;
-    var hosts = Em.keys(hc);
-    hosts.forEach(function (host) {
+    for (var host in hc) {
+      hostsCount++;
       componentsCount += hc[host].length;
-    });
-    this.setProperties({
-      componentsCount: componentsCount,
-      hostsCount: hosts.length
-    });
+    }
+    this.set('componentsCount', componentsCount);
+    this.set('hostsCount', hostsCount);
   }.observes('controller.content.restartRequiredHostsAndComponents'),
 
-  /**
-   * @type {string}
-   */
-  rollingRestartSlaveComponentName: function() {
+  rollingRestartSlaveComponentName : function() {
     return batchUtils.getRollingRestartComponentName(this.get('controller.content.serviceName'));
   }.property('controller.content.serviceName'),
 
-  /**
-   * @type {string}
-   */
   rollingRestartActionName : function() {
+    var label = null;
     var componentName = this.get('rollingRestartSlaveComponentName');
-    return componentName ? Em.I18n.t('rollingrestart.dialog.title').format(App.format.role(componentName)) : '';
-  }.property('rollingRestartSlaveComponentName'),
-
-  /**
-   * When some config has dependencies and `.dependencies-info-bar` should be shown and should be placed sticky to top
-   * @method onHasChangedDependenciesUpdated
-   */
-  onHasChangedDependenciesUpdated: function () {
-    if (this.get('controller.hasChangedDependencies')) {
-      Em.run.next(function () {
-        $(".dependencies-info-bar-wrapper").stick_in_parent({parent: '#serviceConfig', offset_top: 60});
-        Em.run.next(function () {
-          $(window).scrollTop(window.scrollY + 1); // '.dependencies-info-bar-wrapper' position should be recalculated
-        });
-      });
+    if (componentName) {
+      label = Em.I18n.t('rollingrestart.dialog.title').format(App.format.role(componentName));
     }
-    else {
-      $(".dependencies-info-bar-wrapper").trigger("sticky_kit:detach");
-    }
-  }.observes('controller.hasChangedDependencies')
-
+    return label;
+  }.property('rollingRestartSlaveComponentName')
 });

@@ -73,5 +73,4 @@ describe('App.MainServiceInfoConfigsView', function() {
       });
     });
   });
-
 });

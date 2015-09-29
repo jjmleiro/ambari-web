@@ -20,7 +20,7 @@
 <a href="#" {{action goToSection view.content.routing target="view"}}>
   {{{unbound view.content.label}}}
   {{#if view.hasAlertsLabel}}
-    <span {{bindAttr class=":label view.hasCriticalAlerts:alerts-crit-count:alerts-warn-count"}}>
+    <span class="label label-important alerts-count">
       {{view.alertsCount}}
     </span>
   {{/if}}
@@ -33,9 +33,7 @@
 {{#if view.isAdminItem}}
   <ul class="top-nav-dropdown-menu">
     {{#each category in view.dropdownCategories}}
-      {{#view view.AdminDropdownItemView itemBinding="category.name" }}
-        <a href="#" {{action "goToCategory" category.url target="view"}}>{{category.label}}</a>
-      {{/view}}
+        <li><a href="#" {{action "goToCategory" category.url target="view"}}>{{category.label}}</a></li>
     {{/each}}
   </ul>
 {{/if}}

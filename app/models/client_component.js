@@ -26,8 +26,6 @@ App.ClientComponent = DS.Model.extend({
   startedCount: DS.attr('number'),
   totalCount: DS.attr('number'),
   stackInfo: DS.belongsTo('App.StackServiceComponent'),
-  hostNames: DS.attr('array'),
-
 
   displayName: function() {
     var displayName = App.format.role(this.get('componentName'));

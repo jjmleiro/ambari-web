@@ -37,7 +37,5 @@ App.ReassignMasterWizardStep6View = App.HighAvailabilityProgressPageView.extend(
 
   submitButtonText: Em.I18n.t('common.complete'),
 
-  templateName: require('templates/main/service/reassign/step6'),
-
-  labelWidth: 'span5'
+  templateName: require('templates/main/service/reassign/step6')
 });

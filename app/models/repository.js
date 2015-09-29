@@ -18,7 +18,6 @@
 
 
 var App = require('app');
-var validator = require('utils/validator');
 
 App.Repository = DS.Model.extend({
   id:  DS.attr('string'), // This is ${osType}-${repoId}.
@@ -40,8 +39,8 @@ App.Repository = DS.Model.extend({
     return this.get('operatingSystem.isSelected');
   }.property('id','operatingSystem.isSelected'),
 
-  invalidFormatError: function() {
-    return !validator.isValidBaseUrl(this.get('baseUrl'));
+  emptyError: function() {
+    return !this.get('baseUrl');
   }.property('baseUrl'),
 
   invalidError: function() {

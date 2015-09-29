@@ -64,33 +64,6 @@ App.MainController = Em.Controller.extend({
     return dfd.promise();
   },
 
-  /**
-   *
-   * @param isLoaded {Boolean}
-   * @param opts {Object}
-   * {
-   *   period {Number}
-   * }
-   * @return {*|{then}}
-   */
-  isLoading: function(isLoaded, opts) {
-    var dfd = $.Deferred();
-    var self = this;
-    opts = opts || {};
-    var period =  opts.period || 20;
-    if (this.get(isLoaded)) {
-      dfd.resolve();
-    } else {
-      var interval = setInterval(function () {
-        if (self.get(isLoaded)) {
-          dfd.resolve();
-          clearInterval(interval);
-        }
-      }, period);
-    }
-    return dfd.promise();
-  },
-
   startPolling: function () {
     if (App.router.get('applicationController.isExistingClusterDataLoaded')) {
       App.router.get('updateController').set('isWorking', true);
@@ -161,11 +134,8 @@ App.MainController = Em.Controller.extend({
   },
   getServerVersion: function(){
     return App.ajax.send({
-      name: 'ambari.service',
+      name: 'ambari.service.load_server_version',
       sender: this,
-      data: {
-        fields: '?fields=RootServiceComponents/component_version,RootServiceComponents/properties/server.os_family&minimal_response=true'
-      },
       success: 'getServerVersionSuccessCallback',
       error: 'getServerVersionErrorCallback'
     });
@@ -180,7 +150,7 @@ App.MainController = Em.Controller.extend({
     } else {
       this.set('isServerClientVersionMismatch', false);
     }
-    App.set('isManagedMySQLForHiveEnabled', App.config.isManagedMySQLForHiveAllowed(data.RootServiceComponents.properties['server.os_family']));
+    App.set('isManagedMySQLForHiveEnabled', App.config.isManagedMySQLForHiveAllowed(data.RootServiceComponents.properties['server.os_type']));
   },
   getServerVersionErrorCallback: function () {
     console.log('ERROR: Cannot load Ambari server version');

@@ -25,9 +25,6 @@ App.Host = DS.Model.extend({
   publicHostName: DS.attr('string'),
   cluster: DS.belongsTo('App.Cluster'),
   hostComponents: DS.hasMany('App.HostComponent'),
-  notStartedComponents: DS.hasMany('App.HostComponent'),
-  componentsWithStaleConfigs: DS.hasMany('App.HostComponent'),
-  componentsInPassiveState: DS.hasMany('App.HostComponent'),
   cpu: DS.attr('string'),
   cpuPhysical: DS.attr('string'),
   memory: DS.attr('string'),
@@ -47,21 +44,18 @@ App.Host = DS.Model.extend({
   memFree:DS.attr('number'),
   cpuSystem:DS.attr('number'),
   cpuUser:DS.attr('number'),
-  criticalWarningAlertsCount: DS.attr('number'),
-  alertsSummary: DS.attr('object'),
+  criticalAlertsCount: DS.attr('number'),
   passiveState: DS.attr('string'),
   index: DS.attr('number'),
-  stackVersions: DS.hasMany('App.HostStackVersion'),
 
   /**
    * Is host checked at the main Hosts page
    */
   selected:DS.attr('boolean'),
-
-  currentVersion: function () {
-    var current = this.get('stackVersions').findProperty('isCurrent');
-    return current ? current.get('repoVersion') : null;
-  }.property('stackVersions.@each.isCurrent'),
+  /**
+   * determine whether host is requested from server
+   */
+  isRequested: DS.attr('boolean'),
 
   /**
    * Overall CPU usage (system and user)
@@ -86,21 +80,27 @@ App.Host = DS.Model.extend({
     return 0;
   }.property('memTotal', 'memFree'),
 
-
-  /**
-   * @type {number}
-   */
-  componentsInPassiveStateCount: function() {
-    return this.get('componentsInPassiveState').length;
-  }.property('componentsInPassiveState.length'),
+  componentsWithStaleConfigs: function () {
+    return this.get('hostComponents').filterProperty('staleConfigs', true);
+  }.property('hostComponents.@each.staleConfigs'),
 
   /**
    * Get count of host components with stale configs
    * @returns {Number}
    */
   componentsWithStaleConfigsCount: function() {
-    return this.get('componentsWithStaleConfigs.length');
+    return this.get('componentsWithStaleConfigs').length;
   }.property('componentsWithStaleConfigs.length'),
+
+  /**
+   * Get count of host components in passive state
+   * @returns {Number}
+   */
+  componentsInPassiveStateCount: function() {
+    return this.get('hostComponents').filter(function(component) {
+      return component.get('passiveState') !== 'OFF';
+    }).length;
+  }.property('hostComponents.@each.passiveState'),
 
   /**
    * Count of mounted on host disks
@@ -243,28 +243,30 @@ App.Host = DS.Model.extend({
    * Contains affected host components names (based on <code>healthClass</code>)
    * @returns {String}
    */
-  healthToolTip: function () {
-    var hostComponents = this.get('notStartedComponents');
+  healthToolTip: function(){
+    var hostComponents = this.get('hostComponents').filter(function(item){
+      return item.get('workStatus') !== App.HostComponentStatus.started;
+    });
     var output = '';
     if (this.get('passiveState') != 'OFF') {
       return Em.I18n.t('hosts.host.passive.mode');
     }
-    switch (this.get('healthClass')) {
+    switch (this.get('healthClass')){
       case 'health-status-DEAD-RED':
-        hostComponents = hostComponents.filterProperty('isMaster');
+        hostComponents = hostComponents.filterProperty('isMaster', true);
         output = Em.I18n.t('hosts.host.healthStatus.mastersDown');
-        hostComponents.forEach(function (hc, index) {
-          output += (index == (hostComponents.length - 1)) ? hc.get('displayName') : (hc.get('displayName') + ", ");
+        hostComponents.forEach(function(hc, index){
+          output += (index == (hostComponents.length-1)) ? hc.get('displayName') : (hc.get('displayName')+", ");
         }, this);
         break;
       case 'health-status-DEAD-YELLOW':
         output = Em.I18n.t('hosts.host.healthStatus.heartBeatNotReceived');
         break;
       case 'health-status-DEAD-ORANGE':
-        hostComponents = hostComponents.filterProperty('isSlave');
+        hostComponents = hostComponents.filterProperty('isSlave', true);
         output = Em.I18n.t('hosts.host.healthStatus.slavesDown');
-        hostComponents.forEach(function (hc, index) {
-          output += (index == (hostComponents.length - 1)) ? hc.get('displayName') : (hc.get('displayName') + ", ");
+        hostComponents.forEach(function(hc, index){
+          output += (index == (hostComponents.length-1)) ? hc.get('displayName') : (hc.get('displayName')+", ");
         }, this);
         break;
       case 'health-status-LIVE':
@@ -272,7 +274,7 @@ App.Host = DS.Model.extend({
         break;
     }
     return output;
-  }.property('passiveState', 'healthClass', 'notStartedComponents.@each')
+  }.property('hostComponents.@each.workStatus','hostComponents.@each.passiveState')
 });
 
 App.Host.FIXTURES = [];

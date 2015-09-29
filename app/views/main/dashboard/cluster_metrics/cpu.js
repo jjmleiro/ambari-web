@@ -33,7 +33,7 @@ App.ChartClusterMetricsCPU = App.ChartLinearTimeView.extend({
 
   title: Em.I18n.t('dashboard.clusterMetrics.cpu'),
   yAxisFormatter: App.ChartLinearTimeView.PercentageFormatter,
-  isTimePagingDisable: false,
+  isTimePagingDisable: true,
   transformToSeries: function (jsonData) {
     var seriesArray = [];
     var idle = null;
@@ -43,7 +43,7 @@ App.ChartClusterMetricsCPU = App.ChartLinearTimeView.extend({
         var seriesData = jsonData.metrics.cpu[name];
         if (seriesData) {
           var s = this.transformData(seriesData, name);
-          if (name.indexOf("Idle") > -1) {
+          if (name === 'Idle') {
             //CPU idle metric should be the last in series array
             idle = s;
             continue;

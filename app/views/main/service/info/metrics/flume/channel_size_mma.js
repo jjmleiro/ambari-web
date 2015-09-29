@@ -31,18 +31,16 @@ App.ChartServiceMetricsFlume_ChannelSizeMMA = App.ChartLinearTimeView.extend({
   title: Em.I18n.t('services.service.info.metrics.flume.channelSizeMMA'),
   renderer: 'line',
   ajaxIndex: 'service.metrics.flume.channel_size_for_all',
-  yAxisFormatter: App.ChartLinearTimeView.CreateRateFormatter('',
-    App.ChartLinearTimeView.DefaultFormatter),
 
   transformToSeries: function (jsonData) {
     var seriesArray = [];
     var self = this;
 
-    if (Em.get(jsonData, "metrics.flume.flume.CHANNEL.ChannelSize.rate")) {
-      for ( var cname in jsonData.metrics.flume.flume.CHANNEL.ChannelSize.rate) {
+    if (Em.get(jsonData, "metrics.flume.flume.CHANNEL.ChannelSize")) {
+      for ( var cname in jsonData.metrics.flume.flume.CHANNEL.ChannelSize) {
         if(cname != "sum"){
           var seriesName = Em.I18n.t('services.service.info.metrics.flume.channelType').format(cname);
-          var seriesData = jsonData.metrics.flume.flume.CHANNEL.ChannelSize.rate[cname];
+          var seriesData = jsonData.metrics.flume.flume.CHANNEL.ChannelSize[cname];
           if (seriesData) {
             seriesArray.push(self.transformData(seriesData, seriesName));
           }
